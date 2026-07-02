@@ -66,5 +66,11 @@ export const useGameStore = create((set, get) => ({
     };
   }),
 
-  syncFullState: (newState) => set(newState)
+  syncFullState: (newState) => set((state) => ({
+    ...newState,
+    gameData: {
+      ...newState.gameData,
+      puzzleImg: newState.gameData?.puzzleImg || state.gameData?.puzzleImg
+    }
+  }))
 }));

@@ -3,7 +3,7 @@ import { peerSync } from '../network/PeerSync';
 import { motion } from 'framer-motion';
 
 const GAMES = [
-  { id: 'mouse-duel', name: 'Mouse Duel', color: 'var(--neon-blue)', desc: 'Collect stars, avoid traps. First to 20 wins.' },
+  { id: 'mouse-duel', name: 'Mouse Duel', color: 'var(--neon-blue)', desc: 'Collect stars, avoid traps. First to 30 wins.' },
   { id: 'button-chaos', name: 'Button Chaos', color: 'var(--neon-red)', desc: 'Click the active button. Watch out for red ones!' },
   { id: 'puzzle-coop', name: 'Puzzle Co-op', color: 'var(--neon-purple)', desc: 'Work together to solve the jigsaw puzzle.' },
   { id: 'memory-flip', name: 'Memory Flip', color: 'var(--neon-green)', desc: 'Find matching pairs simultaneously.' },

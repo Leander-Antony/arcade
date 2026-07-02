@@ -18,8 +18,13 @@ export const MouseDuel = () => {
     let itemId = 0;
     const spawnInterval = setInterval(() => {
       const currentItems = useGameStore.getState().gameData?.items || [];
-      if (currentItems.length < 12) {
-        const type = Math.random() > 0.75 ? 'trap' : 'star';
+      if (currentItems.length < 40) {
+        const rand = Math.random();
+        let type = 'star';
+        if (rand > 0.9) type = 'bomb';
+        else if (rand > 0.8) type = 'cake';
+        else if (rand > 0.6) type = 'trap';
+
         const x = 10 + Math.random() * 80; // 10% to 90% vw
         const y = 15 + Math.random() * 75; // 15% to 90% vh
         
@@ -35,7 +40,7 @@ export const MouseDuel = () => {
   // Handle score checking (Host only)
   useEffect(() => {
     if (!isHost) return;
-    if (players.p1.score >= 20 || players.p2.score >= 20) {
+    if (players.p1.score >= 30 || players.p2.score >= 30) {
       peerSync.sendAction('GAME_OVER');
     }
   }, [players.p1.score, players.p2.score, isHost]);
@@ -77,9 +82,15 @@ export const MouseDuel = () => {
         
         if (collectedBy) {
           itemsChanged = true;
-          if (collectedBy === 'p1') p1ScoreDelta += item.type === 'star' ? 1 : -1;
-          if (collectedBy === 'p2') p2ScoreDelta += item.type === 'star' ? 1 : -1;
-          soundToPlay = item.type === 'star' ? 'star' : 'trap';
+          let delta = 0;
+          if (item.type === 'star') delta = 1;
+          else if (item.type === 'trap') delta = -1;
+          else if (item.type === 'bomb') delta = -5;
+          else if (item.type === 'cake') delta = 5;
+
+          if (collectedBy === 'p1') p1ScoreDelta += delta;
+          if (collectedBy === 'p2') p2ScoreDelta += delta;
+          soundToPlay = item.type === 'star' || item.type === 'cake' ? 'star' : 'trap';
         } else {
           itemsToKeep.push(item);
         }
@@ -106,19 +117,22 @@ export const MouseDuel = () => {
 
   return (
     <div className="w-full h-full" style={{ position: 'relative' }}>
-      {/* Scoreboard */}
+      {/* Scoreboard P1 */}
       <div className="glass-panel" style={{ 
-        position: 'absolute', top: '20px', left: '50%', transform: 'translateX(-50%)', 
-        padding: '10px 30px', display: 'flex', gap: '40px', zIndex: 10
+        position: 'absolute', top: '20px', left: '20px', 
+        padding: '10px 30px', zIndex: 10, textAlign: 'center'
       }}>
-        <div style={{ textAlign: 'center' }}>
-          <span style={{ color: 'var(--neon-blue)', fontSize: '1.2rem' }}>P1 Score</span>
-          <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>{players.p1.score}</div>
-        </div>
-        <div style={{ textAlign: 'center' }}>
-          <span style={{ color: 'var(--neon-red)', fontSize: '1.2rem' }}>P2 Score</span>
-          <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>{players.p2.score}</div>
-        </div>
+        <span style={{ color: 'var(--neon-blue)', fontSize: '1.2rem' }}>P1 Score</span>
+        <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>{players.p1.score}</div>
+      </div>
+
+      {/* Scoreboard P2 */}
+      <div className="glass-panel" style={{ 
+        position: 'absolute', top: '20px', right: '20px', 
+        padding: '10px 30px', zIndex: 10, textAlign: 'center'
+      }}>
+        <span style={{ color: 'var(--neon-red)', fontSize: '1.2rem' }}>P2 Score</span>
+        <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>{players.p2.score}</div>
       </div>
 
       {/* Game Area */}
@@ -152,13 +166,25 @@ export const MouseDuel = () => {
               clipPath: 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)',
               boxShadow: '0 0 15px var(--neon-gold)'
             }} />
-          ) : (
+          ) : item.type === 'trap' ? (
             <div style={{
               width: '100%', height: '100%',
               backgroundColor: 'var(--neon-red)',
               clipPath: 'polygon(20% 0%, 0% 20%, 30% 50%, 0% 80%, 20% 100%, 50% 70%, 80% 100%, 100% 80%, 70% 50%, 100% 20%, 80% 0%, 50% 30%)',
               boxShadow: '0 0 15px var(--neon-red)'
             }} />
+          ) : item.type === 'bomb' ? (
+            <div style={{
+              width: '100%', height: '100%',
+              display: 'flex', justifyContent: 'center', alignItems: 'center',
+              fontSize: '2.5rem'
+            }}>💣</div>
+          ) : (
+            <div style={{
+              width: '100%', height: '100%',
+              display: 'flex', justifyContent: 'center', alignItems: 'center',
+              fontSize: '2.5rem'
+            }}>🎂</div>
           )}
         </motion.div>
       ))}

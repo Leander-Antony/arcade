@@ -42,6 +42,7 @@ class PeerSyncManager {
     this.connection = null;
     this.isHost = false;
     this.unsubscribe = null;
+    this.imageChunks = [];
   }
 
   init() {
@@ -134,7 +135,13 @@ class PeerSyncManager {
           }
         });
         
-        this.sendState(useGameStore.getState());
+        const currentStore = useGameStore.getState();
+        this.sendState(currentStore);
+        
+        // If a client connects late (or refreshes) during a puzzle, send them the image chunks
+        if (currentStore.currentGame === 'puzzle-coop' && currentStore.gameData?.puzzleImg) {
+          this.sendImage(currentStore.gameData.puzzleImg);
+        }
       });
     });
     
@@ -161,6 +168,24 @@ class PeerSyncManager {
           this.handleClientAction(data.action, data.payload);
         } else if (data.action === 'PLAY_SOUND') {
           playSound(data.payload.sound);
+        } else if (data.action === 'ACTION_SET_PUZZLE_CONFIG') {
+          // Client receives the puzzle config
+          useGameStore.getState().setGameData(prev => ({
+            ...data.payload.config,
+            puzzleImg: prev?.puzzleImg
+          }));
+        }
+      } else if (data.type === 'IMAGE_CHUNK') {
+        this.imageChunks[data.chunkIndex] = data.data;
+        // Check if all chunks received
+        if (this.imageChunks.filter(Boolean).length === data.totalChunks) {
+          const fullImage = this.imageChunks.join('');
+          this.imageChunks = []; // Reset for future images
+          useGameStore.getState().setGameData(prev => ({
+            ...prev,
+            puzzleImg: fullImage
+          }));
+          console.log('Successfully received and assembled full image!');
         }
       } else if (data.type === 'CURSOR') {
         const playerId = this.isHost ? 'p2' : 'p1'; // If I am host, data is from p2
@@ -203,10 +228,17 @@ class PeerSyncManager {
   sendState(state) {
     if (this.connection && this.connection.open && this.isHost) {
       try {
+        // Strip out puzzleImg to prevent 100KB payloads on every sync
+        let safeGameData = state.gameData;
+        if (state.gameData && state.gameData.puzzleImg) {
+          const { puzzleImg, ...rest } = state.gameData;
+          safeGameData = rest;
+        }
+
         const serializableState = {
           gameState: state.gameState,
           currentGame: state.currentGame,
-          gameData: state.gameData,
+          gameData: safeGameData,
           players: state.players
         };
         this.connection.send({ type: 'STATE_SYNC', state: serializableState });
@@ -220,6 +252,24 @@ class PeerSyncManager {
     // Only send if connected
     if (this.connection && this.connection.open) {
       this.connection.send({ type: 'CURSOR', x, y });
+    }
+  }
+
+  async sendImage(base64Str) {
+    if (!this.connection || !this.connection.open || !this.isHost) return;
+    const CHUNK_SIZE = 16384; // 16KB chunks to easily pass through WebRTC limits
+    const totalChunks = Math.ceil(base64Str.length / CHUNK_SIZE);
+    
+    for (let i = 0; i < totalChunks; i++) {
+      const chunk = base64Str.substr(i * CHUNK_SIZE, CHUNK_SIZE);
+      this.connection.send({
+        type: 'IMAGE_CHUNK',
+        chunkIndex: i,
+        totalChunks: totalChunks,
+        data: chunk
+      });
+      // Small artificial delay to prevent WebRTC send buffer overflow
+      await new Promise(resolve => setTimeout(resolve, 15));
     }
   }
 
@@ -241,6 +291,7 @@ class PeerSyncManager {
       case 'RETURN_HOME':
         store.setGameState('home');
         store.setCurrentGame(null);
+        store.resetScores();
         break;
       case 'UPDATE_GAME_DATA':
         store.setGameData(payload.data);
@@ -283,30 +334,60 @@ class PeerSyncManager {
         }
         break;
       }
+      case 'ACTION_SET_PUZZLE_CONFIG':
+        store.setGameData(prev => ({
+          ...payload.config,
+          puzzleImg: prev?.puzzleImg
+        }));
+        break;
+      case 'ACTION_RESTART_PUZZLE':
+        store.setGameData({});
+        break;
       case 'ACTION_DROP_PIECE': {
-        const { id, x, y } = payload;
-        const pieces = store.gameData?.pieces || [];
-        let anyUnlocked = false;
-        const newPieces = pieces.map(p => {
-          if (p.id === id) {
-            // Check snap (assuming Host window size is the truth)
-            const boardX = window.innerWidth / 2 - 300;
-            const boardY = window.innerHeight / 2 - 300;
-            const targetAbsX = boardX + p.targetX;
-            const targetAbsY = boardY + p.targetY;
-            const dist = Math.sqrt(Math.pow(x - targetAbsX, 2) + Math.pow(y - targetAbsY, 2));
-            
-            if (dist < 50) {
-              return { ...p, x: targetAbsX, y: targetAbsY, locked: true };
-            }
-            anyUnlocked = true;
-            return { ...p, x, y };
+        const { pieceId, cellIndex } = payload;
+        const state = store.gameData || {};
+        const pieces = state.pieces || [];
+        
+        let occupant = null;
+        if (cellIndex !== null) {
+          occupant = pieces.find(p => p.currentIndex === cellIndex && p.id !== pieceId);
+          if (occupant && occupant.locked) {
+            // Cannot drop onto a locked piece
+            break;
           }
-          if (!p.locked) anyUnlocked = true;
+        }
+        
+        const newPieces = pieces.map(p => {
+          if (p.id === pieceId) {
+            const isCorrect = p.correctIndex === cellIndex;
+            return { ...p, currentIndex: cellIndex, locked: isCorrect };
+          }
+          if (occupant && p.id === occupant.id) {
+            return { ...p, currentIndex: null }; // Swap to tray
+          }
           return p;
         });
         
-        store.setGameData(prev => ({ ...prev, pieces: newPieces, completed: !anyUnlocked }));
+        const anyUnlocked = newPieces.some(p => !p.locked);
+        
+        const isCompleted = !anyUnlocked && newPieces.length > 0;
+        store.setGameData(prev => ({ 
+          ...prev, 
+          pieces: newPieces, 
+          completed: isCompleted,
+          moves: (prev.moves || 0) + 1,
+          timeTaken: isCompleted && !prev.completed ? Date.now() - (prev.startTime || Date.now()) : prev.timeTaken
+        }));
+        
+        if (isCompleted && !state.completed) {
+          playSound('win');
+        } else {
+          // Check if the piece we just dropped locked into place
+          const droppedPiece = newPieces.find(p => p.id === pieceId);
+          if (droppedPiece && droppedPiece.locked) {
+            playSound('star'); // Satisfying snap sound
+          }
+        }
         break;
       }
       case 'ACTION_FLIP_CARD': {

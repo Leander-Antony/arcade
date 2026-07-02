@@ -26,6 +26,7 @@ const GameRenderer = () => {
 
 function App() {
   const gameState = useGameStore(state => state.gameState);
+  const players = useGameStore(state => state.players);
 
   useEffect(() => {
     // Initialize P2P connection when app loads
@@ -43,6 +44,22 @@ function App() {
       {gameState === 'game-over' && (
         <div className="flex-center h-full w-full flex-col">
           <h1 className="neon-text-blue" style={{fontSize: '4rem', marginBottom: '2rem'}}>GAME OVER</h1>
+          
+          <div style={{ display: 'flex', gap: '4rem', marginBottom: '2rem' }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ color: 'var(--neon-blue)', fontSize: '1.5rem', marginBottom: '0.5rem' }}>P1 Score</div>
+              <div style={{ fontSize: '3rem', fontWeight: 'bold', color: 'white' }}>{players.p1.score}</div>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ color: 'var(--neon-red)', fontSize: '1.5rem', marginBottom: '0.5rem' }}>P2 Score</div>
+              <div style={{ fontSize: '3rem', fontWeight: 'bold', color: 'white' }}>{players.p2.score}</div>
+            </div>
+          </div>
+
+          <h2 style={{ fontSize: '3rem', marginBottom: '3rem', color: players.p1.score > players.p2.score ? 'var(--neon-blue)' : players.p1.score < players.p2.score ? 'var(--neon-red)' : 'white' }}>
+            {players.p1.score > players.p2.score ? 'PLAYER 1 WINS!' : players.p1.score < players.p2.score ? 'PLAYER 2 WINS!' : 'IT\'S A TIE!'}
+          </h2>
+
           <button className="btn btn-primary" onClick={() => peerSync.sendAction('RETURN_HOME')}>RETURN TO MENU</button>
         </div>
       )}

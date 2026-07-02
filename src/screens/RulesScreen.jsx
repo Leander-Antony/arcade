@@ -9,7 +9,7 @@ const GAME_RULES = {
       'Random stars spawn on the board.',
       'Collect stars by touching them with your cursor (+1 point).',
       'Avoid traps! Touching them deducts 1 point.',
-      'First player to reach 20 points wins.'
+      'First player to reach 30 points wins.'
     ],
     color: 'var(--neon-blue)'
   },

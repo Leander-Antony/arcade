@@ -61,21 +61,21 @@ export const HomeScreen = () => {
 
         <div style={{ marginTop: '3rem' }}>
           {bothConnected ? (
-            <button 
-              className="btn btn-primary animate-pulse-glow" 
-              onClick={() => {
-                if (isHost) {
+            isHost ? (
+              <button 
+                className="btn btn-primary animate-pulse-glow" 
+                onClick={() => {
                   useGameStore.getState().setGameState('select');
                   peerSync.sendState(useGameStore.getState());
-                } else {
-                   // In this game, Host drives state, client requests it, but actually we can let both trigger 'select' phase 
-                   // Wait, I will just let anyone click it and it tells host to change state.
-                   peerSync.sendAction('GAME_ACTION', { type: 'GOTO_SELECT' });
-                }
-              }}
-            >
-              START BATTLE
-            </button>
+                }}
+              >
+                START BATTLE
+              </button>
+            ) : (
+              <p style={{ color: 'var(--text-muted)', animation: 'pulse 2s infinite' }}>
+                Waiting for Host to start...
+              </p>
+            )
           ) : (
             <p style={{ color: 'var(--text-muted)', animation: 'pulse 2s infinite' }}>
               Waiting for Player 2 to join...<br/>
