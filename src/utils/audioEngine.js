@@ -138,7 +138,7 @@ class AudioEngine {
     osc.frequency.setValueAtTime(55, this.audioCtx.currentTime); // Low A
 
     gain.gain.setValueAtTime(0, this.audioCtx.currentTime);
-    gain.gain.linearRampToValueAtTime(0.05, this.audioCtx.currentTime + 2); // Very quiet, fades in
+    gain.gain.linearRampToValueAtTime(0.015, this.audioCtx.currentTime + 2); // Extremely quiet, fades in
 
     osc.connect(gain);
     gain.connect(this.masterGain);
