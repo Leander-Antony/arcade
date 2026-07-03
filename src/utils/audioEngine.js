@@ -2,6 +2,7 @@ class AudioEngine {
   constructor() {
     this.audioCtx = null;
     this.masterGain = null;
+    this.ambienceStarted = false;
   }
 
   init() {
@@ -10,10 +11,80 @@ class AudioEngine {
       this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       this.masterGain = this.audioCtx.createGain();
       this.masterGain.gain.value = 0.15; // Global volume
-      this.masterGain.connect(this.audioCtx.destination);
+      
+      // Add a compressor to prevent audio clipping/distortion when many sounds play at once
+      this.compressor = this.audioCtx.createDynamicsCompressor();
+      this.compressor.threshold.value = -24;
+      this.compressor.knee.value = 30;
+      this.compressor.ratio.value = 12;
+      this.compressor.attack.value = 0.003;
+      this.compressor.release.value = 0.25;
+
+      this.masterGain.connect(this.compressor);
+      this.compressor.connect(this.audioCtx.destination);
+      
+      const startAmbience = () => {
+        if (!this.ambienceStarted && this.audioCtx.state === 'running') {
+          this.playArcadeAmbience();
+          this.ambienceStarted = true;
+          window.removeEventListener('click', startAmbience);
+          window.removeEventListener('keydown', startAmbience);
+        }
+      };
+      window.addEventListener('click', startAmbience);
+      window.addEventListener('keydown', startAmbience);
+      
     } catch (e) {
-      console.warn('Web Audio API not supported');
+      console.warn('Web Audio API not supported', e);
     }
+  }
+
+  playArcadeAmbience() {
+    if (!this.audioCtx) return;
+    
+    // Electrical cabinet buzzing hum (Sawtooth + LowPass Filter)
+    const humOsc = this.audioCtx.createOscillator();
+    humOsc.type = 'sawtooth';
+    humOsc.frequency.value = 60; // 60Hz AC mains electrical hum
+    
+    // Filter to muffle the harshness of the sawtooth so it sounds like it's inside a cabinet
+    const humFilter = this.audioCtx.createBiquadFilter();
+    humFilter.type = 'lowpass';
+    humFilter.frequency.value = 400; 
+    
+    const humGain = this.audioCtx.createGain();
+    humGain.gain.value = 0.04; // Adjust volume for the buzz
+    
+    humOsc.connect(humFilter);
+    humFilter.connect(humGain);
+    humGain.connect(this.masterGain);
+    humOsc.start();
+    
+    // Distant arcade chatter/beeps simulation loop
+    const playRandomBeep = () => {
+      if (!this.audioCtx) return;
+      const beepOsc = this.audioCtx.createOscillator();
+      beepOsc.type = ['square', 'sawtooth'][Math.floor(Math.random() * 2)];
+      beepOsc.frequency.value = 200 + Math.random() * 800;
+      
+      const beepGain = this.audioCtx.createGain();
+      beepGain.gain.value = 0.005 + Math.random() * 0.01; // Very quiet
+      beepGain.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.1);
+      
+      beepOsc.connect(beepGain);
+      beepGain.connect(this.masterGain);
+      
+      beepOsc.start();
+      beepOsc.stop(this.audioCtx.currentTime + 0.1);
+      
+      beepOsc.onended = () => {
+        beepOsc.disconnect();
+        beepGain.disconnect();
+      };
+      
+      setTimeout(playRandomBeep, 2000 + Math.random() * 5000);
+    };
+    playRandomBeep();
   }
 
   playOscillator(type, freq, duration, slideFreq = null) {
@@ -43,10 +114,15 @@ class AudioEngine {
 
     osc.start();
     osc.stop(this.audioCtx.currentTime + duration);
+
+    osc.onended = () => {
+      osc.disconnect();
+      gain.disconnect();
+    };
   }
 
   playHoverBeep() {
-    this.playOscillator('sine', 880, 0.1); // A5
+    this.playOscillator('square', 880, 0.1, 440); // Punchier square wave hover
   }
 
   playCoinInsert() {

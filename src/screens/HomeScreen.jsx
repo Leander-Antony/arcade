@@ -6,6 +6,7 @@ import { audioEngine } from '../utils/audioEngine';
 
 export const HomeScreen = () => {
   const { isHost, connectionStatus, roomCode } = useGameStore();
+  const [coinInserted, setCoinInserted] = useState(false);
   const [joinMode, setJoinMode] = useState(false);
   const [joinCode, setJoinCode] = useState('');
   
@@ -22,21 +23,38 @@ export const HomeScreen = () => {
       className="flex-center flex-col h-full w-full"
       style={{ position: 'relative', zIndex: 10 }}
     >
-      <div className="glass-panel" style={{ padding: '4rem', textAlign: 'center', width: '80%', maxWidth: '700px' }}>
-        <h1 className="retro-text neon-text-baby-pink animate-flicker" style={{ fontSize: '5rem', marginBottom: '0.5rem', letterSpacing: '4px' }}>
+      <div className="glass-panel" style={{ padding: '4rem', textAlign: 'center', width: '80%', maxWidth: '800px', position: 'relative' }}>
+        <h1 className="retro-text neon-text-baby-pink chromatic-text animate-flicker" style={{ fontSize: '6rem', marginBottom: '0.5rem', letterSpacing: '8px' }}>
           ARCADE ENTRY
         </h1>
-        <p className="retro-text neon-text-purple" style={{ fontSize: '1.5rem', marginBottom: '3rem', letterSpacing: '2px' }}>
+        <p className="retro-text chromatic-text" style={{ color: 'var(--neon-purple)', fontSize: '1.8rem', marginBottom: '3rem', letterSpacing: '4px' }}>
           P2P MULTIPLAYER SYSTEM
         </p>
 
-        {connectionStatus === 'disconnected' && !joinMode && (
+        {connectionStatus === 'disconnected' && !coinInserted && (
+          <div 
+            className="flex-center flex-col" 
+            style={{ marginTop: '2rem', cursor: 'pointer', padding: '2rem' }} 
+            onClick={() => {
+              audioEngine.playCoinInsert();
+              setCoinInserted(true);
+            }}
+          >
+            <p className="arcade-insert-coin" style={{ cursor: 'pointer' }}>
+              INSERT COIN
+            </p>
+            <p className="retro-text" style={{ color: 'var(--text-muted)', fontSize: '1.2rem', marginTop: '1rem' }}>
+              (CLICK HERE)
+            </p>
+          </div>
+        )}
+
+        {connectionStatus === 'disconnected' && coinInserted && !joinMode && (
           <div style={{ display: 'flex', gap: '2rem', justifyContent: 'center' }}>
             <button 
               className="btn btn-primary"
               onMouseEnter={() => audioEngine.playHoverBeep()}
               onClick={() => {
-                audioEngine.playCoinInsert();
                 peerSync.hostGame();
               }}
               style={{ fontSize: '1.5rem', padding: '15px 40px' }}
@@ -81,7 +99,6 @@ export const HomeScreen = () => {
                 className="btn btn-primary"
                 onMouseEnter={() => audioEngine.playHoverBeep()}
                 onClick={() => {
-                  audioEngine.playCoinInsert();
                   if (joinCode.length > 0) peerSync.joinGame(joinCode);
                 }}
               >
@@ -142,35 +159,47 @@ export const HomeScreen = () => {
               </div>
             </div>
 
-            <div style={{ marginTop: '2rem', minHeight: '80px' }} className="flex-center">
+            <div style={{ marginTop: '3rem', minHeight: '80px' }} className="flex-center">
               {connected ? (
                 isHost ? (
                   <button 
-                    className="btn btn-primary animate-pulse-glow" 
+                    className="btn btn-primary animate-pulse-glow chromatic-text" 
                     onMouseEnter={() => audioEngine.playHoverBeep()}
                     onClick={() => {
-                      audioEngine.playCoinInsert();
+                      audioEngine.playGameStart();
                       useGameStore.getState().setGameState('select');
                       peerSync.sendState(useGameStore.getState());
                     }}
-                    style={{ fontSize: '1.8rem', padding: '15px 40px' }}
+                    style={{ fontSize: '2.5rem', padding: '20px 50px' }}
                   >
-                    INSERT COIN / START
+                    PLAYER 1 START
                   </button>
                 ) : (
-                  <p className="retro-text" style={{ color: 'var(--neon-pink)', fontSize: '1.5rem', animation: 'flicker 2s infinite alternate' }}>
-                    WAITING FOR P1 TO INSERT COIN...
+                  <p className="retro-text animate-pulse-glow" style={{ color: 'var(--neon-blue)', fontSize: '1.5rem', letterSpacing: '4px' }}>
+                    WAITING FOR P1 TO START...
                   </p>
                 )
-              ) : (
-                <p className="retro-text" style={{ color: 'var(--text-muted)', fontSize: '1.2rem', lineHeight: '1.5' }}>
-                  <span className="animate-flicker">WAITING FOR P2...</span><br/>
-                  (Share your Room Code)
+              ) : waiting ? (
+                <p className="retro-text animate-pulse-glow" style={{ color: 'var(--text-muted)', fontSize: '1.2rem' }}>
+                  WAITING FOR P2...
                 </p>
-              )}
+              ) : null}
             </div>
           </>
         )}
+
+      </div>
+      
+      {/* Static Credit Counter at Bottom Right of Screen */}
+      <div style={{ position: 'absolute', bottom: '2rem', right: '3rem' }}>
+        <p className="retro-text" style={{ 
+          color: !coinInserted ? 'var(--neon-blue)' : 'var(--neon-red)', 
+          fontSize: '1.5rem', 
+          letterSpacing: '4px',
+          animation: coinInserted ? 'flicker 2s infinite alternate' : 'none'
+        }}>
+          CREDIT {!coinInserted ? '1' : '0'}
+        </p>
       </div>
     </motion.div>
   );

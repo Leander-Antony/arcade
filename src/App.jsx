@@ -66,7 +66,7 @@ function App() {
       <ArcadeBackground />
       <CursorOverlay />
       
-      <div style={{ position: 'relative', zIndex: 10, width: '100%', height: '100%' }}>
+      <div className="crt-turn-on" style={{ position: 'relative', zIndex: 10, width: '100%', height: '100%' }}>
         {gameState === 'home' && <HomeScreen />}
         {gameState === 'select' && <GameSelectionScreen />}
         {gameState === 'rules' && <RulesScreen />}
