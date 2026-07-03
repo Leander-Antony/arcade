@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useGameStore } from './store/useGameStore';
 import { peerSync } from './network/PeerSync';
 import { CursorOverlay } from './components/CursorOverlay';
@@ -10,10 +10,33 @@ import { ButtonChaos } from './games/ButtonChaos';
 import { PuzzleCoop } from './games/PuzzleCoop';
 import { MemoryFlip } from './games/MemoryFlip';
 import { LaserMaze } from './games/LaserMaze';
+import { ArcadeBackground } from './components/ArcadeBackground';
+import { audioEngine } from './utils/audioEngine';
 
-// We'll import actual games later
 const GameRenderer = () => {
   const currentGame = useGameStore(state => state.currentGame);
+  const [isBooting, setIsBooting] = useState(true);
+
+  useEffect(() => {
+    setIsBooting(true);
+    audioEngine.playBootUp();
+    const timer = setTimeout(() => {
+      setIsBooting(false);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [currentGame]);
+
+  if (isBooting) {
+    return (
+      <div className="boot-screen">
+        <div className="boot-text animate-flicker">BOOTING ARCADE_OS_v3.2...</div>
+        <div className="boot-progress-bar">
+          <div className="boot-progress-fill"></div>
+        </div>
+      </div>
+    );
+  }
+
   switch (currentGame) {
     case 'mouse-duel': return <MouseDuel />;
     case 'button-chaos': return <ButtonChaos />;
@@ -29,40 +52,63 @@ function App() {
   const players = useGameStore(state => state.players);
 
   useEffect(() => {
-    // Initialize P2P connection when app loads
     peerSync.init();
+    audioEngine.init(); // Initialize audio context early
   }, []);
+
+  useEffect(() => {
+    if (gameState === 'game-over') {
+      audioEngine.playGameOver();
+    }
+  }, [gameState]);
 
   return (
     <>
+      <ArcadeBackground />
       <CursorOverlay />
       
-      {gameState === 'home' && <HomeScreen />}
-      {gameState === 'select' && <GameSelectionScreen />}
-      {gameState === 'rules' && <RulesScreen />}
-      {gameState === 'playing' && <GameRenderer />}
-      {gameState === 'game-over' && (
+      <div style={{ position: 'relative', zIndex: 10, width: '100%', height: '100%' }}>
+        {gameState === 'home' && <HomeScreen />}
+        {gameState === 'select' && <GameSelectionScreen />}
+        {gameState === 'rules' && <RulesScreen />}
+        {gameState === 'playing' && <GameRenderer />}
+        {gameState === 'game-over' && (
         <div className="flex-center h-full w-full flex-col">
-          <h1 className="neon-text-blue" style={{fontSize: '4rem', marginBottom: '2rem'}}>GAME OVER</h1>
+          <h1 className="neon-text-pink retro-text animate-flicker" style={{fontSize: '5rem', marginBottom: '2rem', textAlign: 'center'}}>GAME OVER</h1>
           
-          <div style={{ display: 'flex', gap: '4rem', marginBottom: '2rem' }}>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ color: 'var(--neon-blue)', fontSize: '1.5rem', marginBottom: '0.5rem' }}>P1 Score</div>
-              <div style={{ fontSize: '3rem', fontWeight: 'bold', color: 'white' }}>{players.p1.score}</div>
+          <div style={{ display: 'flex', gap: '5rem', marginBottom: '3rem', justifyContent: 'center' }}>
+            <div className="glass-panel" style={{textAlign: 'center', padding: '2rem', minWidth: '200px'}}>
+              <div className="retro-text neon-text-blue" style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>P1 Score</div>
+              <div style={{ fontSize: '4rem', fontWeight: 'bold', color: 'white' }}>{players.p1.score}</div>
             </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ color: 'var(--neon-red)', fontSize: '1.5rem', marginBottom: '0.5rem' }}>P2 Score</div>
-              <div style={{ fontSize: '3rem', fontWeight: 'bold', color: 'white' }}>{players.p2.score}</div>
+            <div className="glass-panel" style={{textAlign: 'center', padding: '2rem', minWidth: '200px'}}>
+              <div className="retro-text neon-text-red" style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>P2 Score</div>
+              <div style={{ fontSize: '4rem', fontWeight: 'bold', color: 'white' }}>{players.p2.score}</div>
             </div>
           </div>
 
-          <h2 style={{ fontSize: '3rem', marginBottom: '3rem', color: players.p1.score > players.p2.score ? 'var(--neon-blue)' : players.p1.score < players.p2.score ? 'var(--neon-red)' : 'white' }}>
+          <h2 className="retro-text" style={{ 
+            fontSize: '3rem', 
+            marginBottom: '3rem', 
+            color: players.p1.score > players.p2.score ? 'var(--neon-blue)' : players.p1.score < players.p2.score ? 'var(--neon-red)' : 'var(--baby-pink)',
+            textShadow: `0 0 10px ${players.p1.score > players.p2.score ? 'var(--neon-blue)' : players.p1.score < players.p2.score ? 'var(--neon-red)' : 'var(--baby-pink)'}`
+          }}>
             {players.p1.score > players.p2.score ? 'PLAYER 1 WINS!' : players.p1.score < players.p2.score ? 'PLAYER 2 WINS!' : 'IT\'S A TIE!'}
           </h2>
 
-          <button className="btn btn-primary" onClick={() => peerSync.sendAction('RETURN_HOME')}>RETURN TO MENU</button>
+          <button 
+            className="btn btn-primary" 
+            onMouseEnter={() => audioEngine.playHoverBeep()}
+            onClick={() => {
+              audioEngine.playCoinInsert();
+              peerSync.sendAction('RETURN_HOME');
+            }}
+          >
+            RETURN TO MENU
+          </button>
         </div>
       )}
+      </div>
     </>
   );
 }

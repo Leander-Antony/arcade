@@ -1,0 +1,73 @@
+.arcade-bg-container {
+  position: fixed;
+  inset: 0;
+  z-index: 1; /* Below everything else */
+  overflow: hidden;
+  pointer-events: none; /* Let clicks pass through to app */
+}
+
+.arcade-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.bg-gradient {
+  background: radial-gradient(circle at center, #0a0a1a 0%, #020205 100%);
+}
+
+.grid-layer {
+  background-size: 50px 50px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 182, 193, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 243, 255, 0.05) 1px, transparent 1px);
+  perspective: 500px;
+  transform-origin: center center;
+  transition: transform 0.1s ease-out;
+}
+
+.energy-waves {
+  background: linear-gradient(180deg, transparent 0%, rgba(255, 182, 193, 0.02) 50%, transparent 100%);
+  background-size: 100% 200%;
+  animation: wave-move 10s linear infinite;
+  opacity: 0.5;
+}
+
+@keyframes wave-move {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 200%; }
+}
+
+.particles-layer {
+  transition: transform 0.2s ease-out;
+}
+
+.particle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: var(--baby-pink);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--baby-pink), 0 0 20px var(--baby-pink);
+  opacity: 0;
+  animation: float-particle ease-in-out infinite alternate;
+}
+
+.particle:nth-child(even) {
+  background: var(--neon-blue);
+  box-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue);
+}
+
+@keyframes float-particle {
+  0% { transform: translateY(0) scale(0.8); opacity: 0; }
+  50% { opacity: 0.8; }
+  100% { transform: translateY(-50px) scale(1.2); opacity: 0; }
+}
+
+.crt-overlay {
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+  background-size: 100% 4px;
+  box-shadow: inset 0 0 100px rgba(0,0,0,0.9); /* Vignette */
+  z-index: 100;
+}

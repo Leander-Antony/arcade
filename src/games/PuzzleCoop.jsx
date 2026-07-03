@@ -130,14 +130,10 @@ export const PuzzleCoop = () => {
     setDraggedPieceId(pieceId);
     e.dataTransfer.setData('text/plain', pieceId);
     e.dataTransfer.effectAllowed = 'move';
-    
-    // Hide the custom cursor while dragging natively
-    document.body.style.cursor = 'grabbing';
   };
 
   const handleDragEnd = () => {
     setDraggedPieceId(null);
-    document.body.style.cursor = 'none';
   };
 
   const handleDragOver = (e) => {
@@ -217,7 +213,7 @@ export const PuzzleCoop = () => {
                   style={{ display: 'none' }}
                   id="image-upload"
                 />
-                <label htmlFor="image-upload" className="btn" style={{ cursor: 'pointer', border: '1px solid var(--neon-purple)', color: 'var(--neon-purple)' }}>
+                <label htmlFor="image-upload" className="btn" style={{ cursor: 'none', border: '1px solid var(--neon-purple)', color: 'var(--neon-purple)' }}>
                   Upload Custom Image
                 </label>
                 
@@ -297,7 +293,7 @@ export const PuzzleCoop = () => {
           backgroundPosition: `-${localBgPosX}px -${localBgPosY}px`,
           backgroundSize: `${puzzleSize}px ${puzzleSize}px`,
           boxShadow: piece.locked ? 'none' : 'inset 0 0 0 1px rgba(255,255,255,0.2), 0 4px 6px rgba(0,0,0,0.5)',
-          cursor: piece.locked ? 'default' : 'grab',
+          cursor: 'none',
           opacity: piece.locked ? 1 : 0.95,
           filter: piece.locked ? 'none' : 'brightness(1.1)',
           flexShrink: 0,

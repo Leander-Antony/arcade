@@ -14,15 +14,13 @@ const GAME_RULES = {
     color: 'var(--neon-blue)'
   },
   'button-chaos': {
-    title: 'Button Chaos',
+    title: 'Grid Capture',
     rules: [
-      'Random buttons will appear on screen.',
-      'Click the active button to score points.',
-      'Standard Button = +1',
-      'Green Button = +2',
-      'Gold Button = +3',
-      'Red Button = -1 (AVOID!)',
-      'First to 15 points wins.'
+      'Battle over an 8x8 neon grid.',
+      'Click tiles to paint them your color (Blue vs Red).',
+      'You CAN steal your opponent\'s tiles!',
+      'Watch for Energy Cores: clicking one claims a 3x3 area instantly!',
+      'Player with the most tiles after 30 seconds wins.'
     ],
     color: 'var(--neon-red)'
   },

@@ -90,7 +90,10 @@ export const MouseDuel = () => {
 
           if (collectedBy === 'p1') p1ScoreDelta += delta;
           if (collectedBy === 'p2') p2ScoreDelta += delta;
-          soundToPlay = item.type === 'star' || item.type === 'cake' ? 'star' : 'trap';
+          
+          if (item.type === 'cake') soundToPlay = 'powerup';
+          else if (item.type === 'star') soundToPlay = 'star';
+          else soundToPlay = 'trap';
         } else {
           itemsToKeep.push(item);
         }

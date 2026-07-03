@@ -1,85 +1,80 @@
 import { useGameStore } from '../store/useGameStore';
 import { peerSync } from '../network/PeerSync';
 import { motion } from 'framer-motion';
+import { audioEngine } from '../utils/audioEngine';
 
 export const HomeScreen = () => {
-  const { isHost, connectionStatus, players } = useGameStore();
+  const { isHost, connectionStatus } = useGameStore();
   
   const bothConnected = connectionStatus === 'connected';
 
-  const handlePlay = () => {
-    if (isHost && bothConnected) {
-      peerSync.sendAction('GAME_ACTION', null); // Generic, but we just set state directly on host
-      useGameStore.getState().setGameState('select');
-      peerSync.sendState(useGameStore.getState());
-    } else if (!isHost && bothConnected) {
-      // Client can also trigger play
-      peerSync.sendAction('GAME_ACTION', { type: 'GO_TO_SELECT' }); 
-      // Actually let's standardize:
-      // Host handles everything. Client sends action.
-    }
-  };
-
   return (
     <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 1.05 }}
+      transition={{ duration: 0.5 }}
       className="flex-center flex-col h-full w-full"
+      style={{ position: 'relative', zIndex: 10 }}
     >
-      <div className="glass-panel" style={{ padding: '4rem', textAlign: 'center', width: '80%', maxWidth: '600px' }}>
-        <h1 className="neon-text-blue" style={{ fontSize: '4rem', marginBottom: '1rem', letterSpacing: '4px' }}>
-          CURSOR CLASH
+      <div className="glass-panel" style={{ padding: '4rem', textAlign: 'center', width: '80%', maxWidth: '700px' }}>
+        <h1 className="retro-text neon-text-baby-pink animate-flicker" style={{ fontSize: '5rem', marginBottom: '0.5rem', letterSpacing: '4px' }}>
+          ARCADE ENTRY
         </h1>
-        <p className="neon-text-purple" style={{ fontSize: '1.2rem', marginBottom: '3rem' }}>
-          Real-Time P2P Microgames
+        <p className="retro-text neon-text-purple" style={{ fontSize: '1.5rem', marginBottom: '3rem', letterSpacing: '2px' }}>
+          P2P MULTIPLAYER SYSTEM
         </p>
 
-        <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-around' }}>
+        <div style={{ marginBottom: '3rem', display: 'flex', justifyContent: 'space-around' }}>
           <div className="flex-col flex-center">
             <div style={{ 
-              width: '20px', height: '20px', borderRadius: '50%', 
-              backgroundColor: isHost ? '#00f3ff' : (connectionStatus === 'connected' ? '#00f3ff' : '#333'),
-              boxShadow: isHost ? '0 0 10px #00f3ff' : 'none',
-              marginBottom: '10px'
+              width: '24px', height: '24px', borderRadius: '50%', 
+              backgroundColor: isHost ? 'var(--neon-blue)' : (connectionStatus === 'connected' ? 'var(--neon-blue)' : '#333'),
+              boxShadow: isHost ? '0 0 15px var(--neon-blue)' : 'none',
+              marginBottom: '15px',
+              border: '2px solid rgba(255,255,255,0.2)'
             }}></div>
-            <span style={{ color: '#00f3ff' }}>{isHost ? 'You (P1)' : 'Player 1'}</span>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{isHost ? 'Host' : (connectionStatus === 'connected' ? 'Connected' : 'Waiting...')}</span>
+            <span className="retro-text" style={{ color: 'var(--neon-blue)', fontSize: '1.2rem' }}>{isHost ? 'P1 (HOST)' : 'PLAYER 1'}</span>
+            <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>{isHost ? 'Active' : (connectionStatus === 'connected' ? 'Connected' : 'Waiting...')}</span>
           </div>
           
           <div className="flex-col flex-center">
             <div style={{ 
-              width: '20px', height: '20px', borderRadius: '50%', 
-              backgroundColor: !isHost ? '#ff0055' : (connectionStatus === 'connected' ? '#ff0055' : '#333'),
-              boxShadow: !isHost ? '0 0 10px #ff0055' : 'none',
-              marginBottom: '10px'
+              width: '24px', height: '24px', borderRadius: '50%', 
+              backgroundColor: !isHost ? 'var(--neon-red)' : (connectionStatus === 'connected' ? 'var(--neon-red)' : '#333'),
+              boxShadow: !isHost ? '0 0 15px var(--neon-red)' : 'none',
+              marginBottom: '15px',
+              border: '2px solid rgba(255,255,255,0.2)'
             }}></div>
-            <span style={{ color: '#ff0055' }}>{!isHost ? 'You (P2)' : 'Player 2'}</span>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{!isHost ? 'Client' : (connectionStatus === 'connected' ? 'Connected' : 'Waiting...')}</span>
+            <span className="retro-text" style={{ color: 'var(--neon-red)', fontSize: '1.2rem' }}>{!isHost ? 'P2 (CLIENT)' : 'PLAYER 2'}</span>
+            <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>{!isHost ? 'Active' : (connectionStatus === 'connected' ? 'Connected' : 'Waiting...')}</span>
           </div>
         </div>
 
-        <div style={{ marginTop: '3rem' }}>
+        <div style={{ marginTop: '2rem', minHeight: '80px' }} className="flex-center">
           {bothConnected ? (
             isHost ? (
               <button 
                 className="btn btn-primary animate-pulse-glow" 
+                onMouseEnter={() => audioEngine.playHoverBeep()}
                 onClick={() => {
+                  audioEngine.playCoinInsert();
                   useGameStore.getState().setGameState('select');
                   peerSync.sendState(useGameStore.getState());
                 }}
+                style={{ fontSize: '1.8rem', padding: '15px 40px' }}
               >
-                START BATTLE
+                INSERT COIN / START
               </button>
             ) : (
-              <p style={{ color: 'var(--text-muted)', animation: 'pulse 2s infinite' }}>
-                Waiting for Host to start...
+              <p className="retro-text" style={{ color: 'var(--neon-pink)', fontSize: '1.5rem', animation: 'flicker 2s infinite alternate' }}>
+                WAITING FOR P1 TO INSERT COIN...
               </p>
             )
           ) : (
-            <p style={{ color: 'var(--text-muted)', animation: 'pulse 2s infinite' }}>
-              Waiting for Player 2 to join...<br/>
-              (Open this same URL in another window)
+            <p className="retro-text" style={{ color: 'var(--text-muted)', fontSize: '1.2rem', lineHeight: '1.5' }}>
+              <span className="animate-flicker">WAITING FOR P2...</span><br/>
+              (Share this URL to connect)
             </p>
           )}
         </div>

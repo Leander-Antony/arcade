@@ -313,25 +313,55 @@ class PeerSyncManager {
         if (currentItems.find(i => i.id === itemId)) {
           console.log('ITEM FOUND! Collecting...', itemId);
           store.setGameData(prev => ({ items: prev.items.filter(i => i.id !== itemId) }));
-          store.updatePlayerScore(playerId, type === 'star' ? 1 : -1);
-          playSound(type === 'star' ? 'star' : 'trap');
+          let delta = 0;
+          let soundToPlay = 'trap';
+          if (type === 'star') { delta = 1; soundToPlay = 'star'; }
+          else if (type === 'cake') { delta = 5; soundToPlay = 'powerup'; }
+          else if (type === 'bomb') { delta = -5; soundToPlay = 'trap'; }
+          else if (type === 'trap') { delta = -1; soundToPlay = 'trap'; }
+          
+          store.updatePlayerScore(playerId, delta);
+          playSound(soundToPlay);
         } else {
           console.log('ITEM NOT FOUND IN STATE:', itemId);
         }
         break;
       }
       case 'ACTION_CLICK_BUTTONCHAOS': {
-        const { btnId, playerId, type } = payload;
-        const currentBtn = store.gameData?.activeBtn;
-        if (currentBtn && currentBtn.id === btnId) {
-          store.setGameData({ activeBtn: null });
-          let points = 1;
-          if (type === 'green') points = 2;
-          if (type === 'gold') points = 3;
-          if (type === 'red') points = -1;
-          store.updatePlayerScore(playerId, points);
-          playSound(type === 'red' ? 'trap' : 'star');
+        const { index, playerId, isPowerUp } = payload;
+        const currentGrid = store.gameData?.grid;
+        if (!currentGrid) break;
+        
+        const newGrid = [...currentGrid];
+        const playerVal = playerId === 'p1' ? 1 : 2;
+        
+        const claimTile = (idx) => {
+          if (idx >= 0 && idx < 64) {
+            newGrid[idx] = playerVal;
+          }
+        };
+
+        claimTile(index);
+
+        if (isPowerUp) {
+          // Claim 3x3 area
+          const row = Math.floor(index / 8);
+          const col = index % 8;
+          for (let r = -1; r <= 1; r++) {
+            for (let c = -1; c <= 1; c++) {
+              if (row + r >= 0 && row + r < 8 && col + c >= 0 && col + c < 8) {
+                claimTile((row + r) * 8 + (col + c));
+              }
+            }
+          }
+          playSound('powerup');
+          // Host clears powerup immediately
+          store.setGameData(prev => ({ ...prev, grid: newGrid, powerUpIndex: null }));
+        } else {
+          playSound('click');
+          store.setGameData(prev => ({ ...prev, grid: newGrid }));
         }
+        
         break;
       }
       case 'ACTION_SET_PUZZLE_CONFIG':

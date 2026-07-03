@@ -47,6 +47,17 @@ export const playSound = (type) => {
         osc.start(now);
         osc.stop(now + 0.6);
         break;
+      case 'powerup':
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(440, now);
+        osc.frequency.exponentialRampToValueAtTime(880, now + 0.1);
+        osc.frequency.setValueAtTime(880, now + 0.1);
+        osc.frequency.exponentialRampToValueAtTime(1760, now + 0.2);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.linearRampToValueAtTime(0, now + 0.3);
+        osc.start(now);
+        osc.stop(now + 0.3);
+        break;
       default:
         break;
     }
