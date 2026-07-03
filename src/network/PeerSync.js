@@ -9,6 +9,7 @@ if (!roomParam) {
   const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?room=' + roomParam;
   window.history.pushState({path: newUrl}, '', newUrl);
 }
+export const ROOM_CODE = roomParam;
 const GLOBAL_ROOM_ID = `arcade-room-${roomParam}`;
 function calculateLaser(grid) {
   let cx = 0, cy = 0, cdir = 'right';

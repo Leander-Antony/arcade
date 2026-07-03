@@ -1,5 +1,5 @@
 import { useGameStore } from '../store/useGameStore';
-import { peerSync } from '../network/PeerSync';
+import { peerSync, ROOM_CODE } from '../network/PeerSync';
 import { motion } from 'framer-motion';
 import { audioEngine } from '../utils/audioEngine';
 
@@ -21,9 +21,17 @@ export const HomeScreen = () => {
         <h1 className="retro-text neon-text-baby-pink animate-flicker" style={{ fontSize: '5rem', marginBottom: '0.5rem', letterSpacing: '4px' }}>
           ARCADE ENTRY
         </h1>
-        <p className="retro-text neon-text-purple" style={{ fontSize: '1.5rem', marginBottom: '3rem', letterSpacing: '2px' }}>
+        <p className="retro-text neon-text-purple" style={{ fontSize: '1.5rem', marginBottom: '1rem', letterSpacing: '2px' }}>
           P2P MULTIPLAYER SYSTEM
         </p>
+        
+        <div className="glass-panel" style={{ 
+          display: 'inline-block', padding: '10px 20px', marginBottom: '3rem', 
+          border: '1px solid var(--neon-gold)', backgroundColor: 'rgba(255, 215, 0, 0.1)' 
+        }}>
+          <span className="retro-text" style={{ color: 'var(--text-muted)' }}>ROOM CODE: </span>
+          <span className="retro-text" style={{ color: 'var(--neon-gold)', fontSize: '1.2rem', letterSpacing: '4px' }}>{ROOM_CODE}</span>
+        </div>
 
         <div style={{ marginBottom: '3rem', display: 'flex', justifyContent: 'space-around' }}>
           <div className="flex-col flex-center">
