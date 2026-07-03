@@ -173,7 +173,7 @@ export const ButtonChaos = () => {
         className="glass-panel"
         style={{
           width: '90%',
-          maxWidth: 'min(600px, 60vh)',
+          maxWidth: 'min(750px, 75vh)',
           aspectRatio: '1/1',
           padding: '10px',
           display: 'grid',
