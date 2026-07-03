@@ -38,23 +38,25 @@ export const CursorOverlay = () => {
   return (
     <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 9999 }}>
       {/* Player 1 Cursor (Blue) */}
-      <div 
-        style={{
-          position: 'absolute',
-          left: p1Pos.x,
-          top: p1Pos.y,
-          transform: 'translate(-50%, -50%)',
-          transition: 'left 0.05s linear, top 0.05s linear',
-          pointerEvents: 'none'
-        }}
-      >
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00f3ff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ filter: 'drop-shadow(0 0 5px #00f3ff)' }}>
-          <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z" />
-        </svg>
-      </div>
+      {players.p1.connected || isHost || useGameStore.getState().connectionStatus === 'connected' ? (
+        <div 
+          style={{
+            position: 'absolute',
+            left: p1Pos.x,
+            top: p1Pos.y,
+            transform: 'translate(-50%, -50%)',
+            transition: 'left 0.05s linear, top 0.05s linear',
+            pointerEvents: 'none'
+          }}
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00f3ff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ filter: 'drop-shadow(0 0 5px #00f3ff)' }}>
+            <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z" />
+          </svg>
+        </div>
+      ) : null}
 
       {/* Player 2 Cursor (Red) */}
-      {players.p2.connected || useGameStore.getState().connectionStatus === 'connected' ? (
+      {players.p2.connected || !isHost || useGameStore.getState().connectionStatus === 'connected' ? (
         <div 
           style={{
             position: 'absolute',

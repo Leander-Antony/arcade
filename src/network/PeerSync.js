@@ -49,6 +49,8 @@ class PeerSyncManager {
     const store = useGameStore.getState();
     store.setConnectionStatus('connecting');
 
+    this.connection = null; // Always reset
+
     // Generate a new random room code
     const roomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
     store.setRoomCode(roomCode);
@@ -68,6 +70,7 @@ class PeerSyncManager {
     this.peer.on('error', (err) => {
       console.error('Host peer error:', err);
       store.setConnectionStatus('disconnected');
+      alert('Network error while hosting: ' + err.type + '. Check your internet connection.');
     });
 
     this.peer.on('connection', (conn) => {
@@ -181,6 +184,43 @@ class PeerSyncManager {
       if (this.isHost) {
         useGameStore.getState().setConnectionStatus('waiting');
       }
+    });
+  }
+
+  joinGame(roomCode) {
+    const store = useGameStore.getState();
+    store.setConnectionStatus('connecting');
+    const hostRoomId = `arcade-room-${roomCode.trim().toUpperCase()}`;
+
+    this.connection = null; // Always reset
+
+    if (this.peer) this.peer.destroy();
+    this.peer = new Peer({ debug: 2 });
+    
+    this.peer.on('open', (id) => {
+      console.log('My client peer ID is: ' + id);
+      const conn = this.peer.connect(hostRoomId, {
+        reliable: true
+      });
+
+      conn.on('open', () => {
+        console.log('Connected to host!');
+        this.connection = conn;
+        this.isHost = false;
+        store.setIsHost(false);
+        store.setConnectionStatus('connected');
+        this.setupConnectionHandlers(conn);
+      });
+      
+      conn.on('error', (err) => {
+        console.error('Connection error:', err);
+      });
+    });
+
+    this.peer.on('error', (err) => {
+      console.error('Client peer error:', err);
+      store.setConnectionStatus('disconnected');
+      alert('Connection error: ' + err.type + '. Check the code and your internet connection.');
     });
   }
 
