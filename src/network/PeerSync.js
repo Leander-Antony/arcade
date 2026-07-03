@@ -35,6 +35,20 @@ function calculateLaser(grid) {
   return { laserPath: path, exitLocked: !exitHit };
 }
 
+const peerConfig = {
+  debug: 2,
+  config: {
+    iceServers: [
+      { urls: 'stun:stun.l.google.com:19302' },
+      { urls: 'stun:stun1.l.google.com:19302' },
+      { urls: 'stun:stun2.l.google.com:19302' },
+      { urls: 'stun:stun3.l.google.com:19302' },
+      { urls: 'stun:stun4.l.google.com:19302' },
+      { urls: 'stun:global.stun.twilio.com:3478' }
+    ]
+  }
+};
+
 class PeerSyncManager {
   constructor() {
     this.peer = null;
@@ -58,7 +72,7 @@ class PeerSyncManager {
 
     if (this.peer) this.peer.destroy();
     
-    this.peer = new Peer(hostRoomId, { debug: 2 });
+    this.peer = new Peer(hostRoomId, peerConfig);
     
     this.peer.on('open', (id) => {
       console.log('Host established: ' + id);
@@ -197,7 +211,7 @@ class PeerSyncManager {
     this.connection = null; // Always reset
 
     if (this.peer) this.peer.destroy();
-    this.peer = new Peer({ debug: 2 });
+    this.peer = new Peer(peerConfig);
     
     this.peer.on('open', (id) => {
       console.log('My client peer ID is: ' + id);
