@@ -2,8 +2,14 @@ import { Peer } from 'peerjs';
 import { useGameStore } from '../store/useGameStore';
 import { playSound } from '../utils/sounds';
 
-const GLOBAL_ROOM_ID = 'cursor-clash-global-v1-987654';
-
+// Generate or retrieve room ID from URL
+let roomParam = new URLSearchParams(window.location.search).get('room');
+if (!roomParam) {
+  roomParam = Math.random().toString(36).substring(2, 8).toUpperCase();
+  const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?room=' + roomParam;
+  window.history.pushState({path: newUrl}, '', newUrl);
+}
+const GLOBAL_ROOM_ID = `arcade-room-${roomParam}`;
 function calculateLaser(grid) {
   let cx = 0, cy = 0, cdir = 'right';
   const path = [];
