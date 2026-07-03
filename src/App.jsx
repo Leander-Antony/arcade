@@ -50,7 +50,10 @@ const GameRenderer = () => {
   }
 };
 
+import { BootSequence } from './components/BootSequence';
+
 function App() {
+  const [isBooting, setIsBooting] = useState(true);
   const gameState = useGameStore(state => state.gameState);
   const players = useGameStore(state => state.players);
   const isShaking = useGameStore(state => state.isShaking);
@@ -64,6 +67,10 @@ function App() {
       audioEngine.playGameOver();
     }
   }, [gameState]);
+
+  if (isBooting) {
+    return <BootSequence onComplete={() => setIsBooting(false)} />;
+  }
 
   return (
     <>

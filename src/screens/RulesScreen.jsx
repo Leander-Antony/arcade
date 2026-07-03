@@ -6,9 +6,10 @@ const GAME_RULES = {
   'mouse-duel': {
     title: 'Mouse Duel',
     rules: [
-      'Random stars spawn on the board.',
-      'Collect stars by touching them with your cursor (+1 point).',
-      'Avoid traps! Touching them deducts 1 point.',
+      'Items will pop up all over the screen randomly.',
+      'Hover over Stars (+1) and Cakes (+5) before I steal them.',
+      'Avoid the Traps and Bombs! They steal your points...',
+      '(Warning: Grabbing a trap will physically shake your screen!)',
       'First player to reach 30 points wins.'
     ],
     color: 'var(--neon-blue)'
@@ -17,29 +18,29 @@ const GAME_RULES = {
     title: 'Grid Capture',
     rules: [
       'Battle over an 8x8 neon grid.',
-      'Click tiles to paint them your color (Blue vs Red).',
-      'You CAN steal your opponent\'s tiles!',
-      'Watch for Energy Cores: clicking one claims a 3x3 area instantly!',
-      'Player with the most tiles after 30 seconds wins.'
+      'Violently click tiles to paint them your color (Blue vs Red).',
+      'You CAN steal my tiles, and I WILL steal yours.',
+      'Watch for the massive Energy Cores: clicking one claims a 3x3 area instantly!',
+      'Whoever holds the most tiles when time runs out wins.'
     ],
     color: 'var(--neon-red)'
   },
   'puzzle-coop': {
     title: 'Puzzle Co-op',
     rules: [
-      'Work together to complete a jigsaw puzzle.',
-      'Both players can drag pieces simultaneously.',
-      'Pieces will snap into place when near correct spots.',
-      'No score, just teamwork!'
+      'Take a deep breath. No fighting in this mode.',
+      'We work together to rebuild a shattered jigsaw puzzle.',
+      'We can both drag pieces at the same time (you will see my cursor).',
+      'Pieces will magically snap into place when you get them close.'
     ],
     color: 'var(--neon-purple)'
   },
   'memory-flip': {
     title: 'Memory Flip',
     rules: [
-      'Take turns flipping cards to find matching pairs.',
-      'If you find a match, you score a point and KEEP your turn!',
-      'If you miss, your turn ends and your opponent goes.',
+      'Take turns flipping cards to find matching emoji pairs.',
+      'If you find a match, you steal a point and KEEP your turn!',
+      'If you miss, your turn ends and it\'s my go.',
       '5x5 Mode: Find the hidden Joker 🃏 for an instant free point!'
     ],
     color: 'var(--neon-green)'
@@ -47,11 +48,11 @@ const GAME_RULES = {
   'tron-lightcycles': {
     title: 'Tron Lightcycles',
     rules: [
-      'You control a constantly moving neon lightcycle.',
-      'Use W, A, S, D or Arrow Keys to steer.',
-      'Your bike leaves a solid energy wall behind it.',
-      'Box your opponent in! If they crash into any wall, you win.',
-      'Best 3 out of 5 rounds wins the match.'
+      'We both drive a constantly moving neon lightcycle.',
+      'Use WASD (or Arrow Keys) to steer.',
+      'Your bike leaves a solid wall behind it. Try to box me in!',
+      '(Warning: If you crash into a wall, the entire machine shakes.)',
+      'First to crash 3 times loses!'
     ],
     color: 'var(--neon-gold)'
   }

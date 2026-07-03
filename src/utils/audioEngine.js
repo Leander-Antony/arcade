@@ -125,6 +125,27 @@ class AudioEngine {
     this.playOscillator('square', 880, 0.1, 440); // Punchier square wave hover
   }
 
+  playAmbientHum() {
+    if (!this.audioCtx) this.init();
+    if (!this.audioCtx || this.isHumming) return;
+    this.isHumming = true;
+
+    const osc = this.audioCtx.createOscillator();
+    const gain = this.audioCtx.createGain();
+
+    // Deep, slightly detuned sawtooth for that thick arcade hum
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(55, this.audioCtx.currentTime); // Low A
+
+    gain.gain.setValueAtTime(0, this.audioCtx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.05, this.audioCtx.currentTime + 2); // Very quiet, fades in
+
+    osc.connect(gain);
+    gain.connect(this.masterGain);
+
+    osc.start();
+  }
+
   playCoinInsert() {
     this.playOscillator('square', 987.77, 0.1, 1318.51); // B5 to E6
     setTimeout(() => {

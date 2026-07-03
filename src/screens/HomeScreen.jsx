@@ -33,6 +33,7 @@ export const HomeScreen = () => {
           onAnimationComplete={() => {
             useGameStore.getState().triggerShake();
             setTimeout(() => {
+              audioEngine.playAmbientHum();
               setIsCoinDropping(false);
               setCoinInserted(true);
             }, 300);
