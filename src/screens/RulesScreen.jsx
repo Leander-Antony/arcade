@@ -37,10 +37,10 @@ const GAME_RULES = {
   'memory-flip': {
     title: 'Memory Flip',
     rules: [
-      'Shared grid of face-down cards.',
-      'Both players can click and flip anytime (no turns).',
-      'Find matching pairs to claim them (+1 point).',
-      'Highest score when all cards are claimed wins.'
+      'Take turns flipping cards to find matching pairs.',
+      'If you find a match, you score a point and KEEP your turn!',
+      'If you miss, your turn ends and your opponent goes.',
+      '5x5 Mode: Find the hidden Joker 🃏 for an instant free point!'
     ],
     color: 'var(--neon-green)'
   },
@@ -60,6 +60,15 @@ const GAME_RULES = {
 export const RulesScreen = () => {
   const currentGame = useGameStore(state => state.currentGame);
   const isHost = useGameStore(state => state.isHost);
+  const gameSettings = useGameStore(state => state.gameSettings);
+  
+  const handleSettingChange = (setting, value) => {
+    if (!isHost) return;
+    const newSettings = { ...gameSettings, [setting]: value };
+    useGameStore.getState().updateGameSettings(newSettings);
+    // Send updated settings to client immediately
+    peerSync.sendState(useGameStore.getState());
+  };
   
   const gameInfo = GAME_RULES[currentGame];
 
@@ -106,6 +115,42 @@ export const RulesScreen = () => {
             </motion.li>
           ))}
         </ul>
+
+        {currentGame === 'memory-flip' && (
+          <div style={{ marginBottom: '3rem', textAlign: 'center' }}>
+            <h3 style={{ color: 'var(--neon-green)', marginBottom: '1rem' }}>Grid Size</h3>
+            <div className="flex-center" style={{ gap: '15px' }}>
+              <button 
+                className="btn"
+                style={{ 
+                  backgroundColor: gameSettings.memoryGridSize === '4x4' ? 'var(--neon-green)' : 'transparent',
+                  color: gameSettings.memoryGridSize === '4x4' ? '#000' : 'var(--neon-green)',
+                  borderColor: 'var(--neon-green)',
+                  opacity: (!isHost && gameSettings.memoryGridSize !== '4x4') ? 0.3 : 1,
+                  cursor: isHost ? 'pointer' : 'default'
+                }}
+                onClick={() => handleSettingChange('memoryGridSize', '4x4')}
+                disabled={!isHost}
+              >
+                4x4 (Classic)
+              </button>
+              <button 
+                className="btn"
+                style={{ 
+                  backgroundColor: gameSettings.memoryGridSize === '5x5' ? 'var(--neon-green)' : 'transparent',
+                  color: gameSettings.memoryGridSize === '5x5' ? '#000' : 'var(--neon-green)',
+                  borderColor: 'var(--neon-green)',
+                  opacity: (!isHost && gameSettings.memoryGridSize !== '5x5') ? 0.3 : 1,
+                  cursor: isHost ? 'pointer' : 'default'
+                }}
+                onClick={() => handleSettingChange('memoryGridSize', '5x5')}
+                disabled={!isHost}
+              >
+                5x5 (Joker's Wild)
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="flex-center" style={{ gap: '20px' }}>
           <button 

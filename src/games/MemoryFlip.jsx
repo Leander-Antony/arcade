@@ -10,16 +10,39 @@ export const MemoryFlip = () => {
   const cards = gameData?.cards || [];
   const myPlayerId = isHost ? 'p1' : 'p2';
 
+  const gameSettings = useGameStore(state => state.gameSettings);
+
   // HOST LOGIC
   useEffect(() => {
     if (!isHost) return;
     
-    // Generate deck
-    const deck = [...EMOJIS, ...EMOJIS]
+    // Generate deck based on settings
+    const is5x5 = gameSettings.memoryGridSize === '5x5';
+    
+    let baseEmojis = [...EMOJIS];
+    if (is5x5) {
+      // Add 4 more emojis for 12 pairs (24 cards)
+      baseEmojis = [...baseEmojis, '🪐', '☄️', '🌟', '👨‍🚀'];
+    }
+    
+    let deck = [...baseEmojis, ...baseEmojis]
       .sort(() => Math.random() - 0.5)
-      .map((emoji, idx) => ({ id: idx, emoji, flipped: false, claimedBy: null }));
+      .map((emoji, idx) => ({ id: idx, emoji, flipped: false, claimedBy: null, isJoker: false }));
       
-    useGameStore.getState().setGameData({ cards: deck, flip1: null, flip2: null, lock: false });
+    if (is5x5) {
+      // Add Joker (25th card)
+      deck.splice(Math.floor(Math.random() * deck.length), 0, {
+        id: 999, emoji: '🃏', flipped: false, claimedBy: null, isJoker: true
+      });
+    }
+      
+    useGameStore.getState().setGameData({ 
+      cards: deck, 
+      flip1: null, 
+      flip2: null, 
+      lock: false,
+      currentTurn: 'p1' 
+    });
     peerSync.sendState(useGameStore.getState());
   }, [isHost]);
 
@@ -32,9 +55,12 @@ export const MemoryFlip = () => {
   }, [cards, isHost]);
 
   const handleCardClick = (card) => {
+    if (gameData?.currentTurn !== myPlayerId) return;
     if (card.claimedBy || card.flipped) return;
     peerSync.sendAction('ACTION_FLIP_CARD', { cardId: card.id, playerId: myPlayerId });
   };
+
+  const isMyTurn = gameData?.currentTurn === myPlayerId;
 
   return (
     <div className="w-full h-full flex-center flex-col" style={{ position: 'relative' }}>
@@ -43,25 +69,43 @@ export const MemoryFlip = () => {
         position: 'absolute', top: '20px', left: '50%', transform: 'translateX(-50%)', 
         padding: '10px 30px', display: 'flex', gap: '40px', zIndex: 10
       }}>
-        <div style={{ textAlign: 'center' }}>
+        <div style={{ 
+          textAlign: 'center', 
+          opacity: gameData?.currentTurn === 'p1' ? 1 : 0.4,
+          textShadow: gameData?.currentTurn === 'p1' ? '0 0 15px var(--neon-blue)' : 'none',
+          transform: gameData?.currentTurn === 'p1' ? 'scale(1.1)' : 'scale(1)',
+          transition: 'all 0.3s ease'
+        }}>
           <span style={{ color: 'var(--neon-blue)', fontSize: '1.2rem' }}>P1 Score</span>
           <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>{players.p1.score}</div>
         </div>
-        <div style={{ textAlign: 'center' }}>
+        <div style={{ 
+          textAlign: 'center',
+          opacity: gameData?.currentTurn === 'p2' ? 1 : 0.4,
+          textShadow: gameData?.currentTurn === 'p2' ? '0 0 15px var(--neon-red)' : 'none',
+          transform: gameData?.currentTurn === 'p2' ? 'scale(1.1)' : 'scale(1)',
+          transition: 'all 0.3s ease'
+        }}>
           <span style={{ color: 'var(--neon-red)', fontSize: '1.2rem' }}>P2 Score</span>
           <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>{players.p2.score}</div>
         </div>
       </div>
+      
+      {!isMyTurn && (
+        <div className="retro-text animate-flicker" style={{ position: 'absolute', top: '100px', color: 'var(--neon-gold)' }}>
+          WAITING FOR OPPONENT...
+        </div>
+      )}
 
       {/* Grid */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(4, minmax(60px, 15vh))',
-        gridAutoRows: 'minmax(60px, 15vh)',
-        gap: '2vh',
+        gridTemplateColumns: gameSettings.memoryGridSize === '5x5' ? 'repeat(5, 1fr)' : 'repeat(4, 1fr)',
+        gap: '2vmin',
         justifyContent: 'center',
         alignContent: 'center',
-        width: '100%',
+        width: '90%',
+        maxWidth: '70vh',
         marginTop: '60px',
         paddingBottom: '20px'
       }}>
@@ -99,7 +143,7 @@ export const MemoryFlip = () => {
                 {/* Front Face (Question Mark) */}
                 <div style={{
                   position: 'absolute', width: '100%', height: '100%', backfaceVisibility: 'hidden',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'clamp(1.5rem, 5vmin, 3rem)',
                   backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: '8px',
                   border: border, boxShadow: shadow
                 }}>❓</div>
@@ -107,7 +151,7 @@ export const MemoryFlip = () => {
                 {/* Back Face (Emoji) */}
                 <div style={{
                   position: 'absolute', width: '100%', height: '100%', backfaceVisibility: 'hidden',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'clamp(1.5rem, 5vmin, 3rem)',
                   backgroundColor: 'var(--panel-bg)', borderRadius: '8px',
                   transform: 'rotateY(180deg)',
                   border: border, boxShadow: shadow

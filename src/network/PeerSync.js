@@ -252,6 +252,7 @@ class PeerSyncManager {
         const serializableState = {
           gameState: state.gameState,
           currentGame: state.currentGame,
+          gameSettings: state.gameSettings,
           gameData: safeGameData,
           players: state.players
         };
@@ -448,6 +449,15 @@ class PeerSyncManager {
 
         cards[cardIndex].flipped = true;
 
+        if (cards[cardIndex].isJoker) {
+          const newCards = [...cards];
+          newCards[cardIndex] = { ...newCards[cardIndex], flipped: true, claimedBy: playerId };
+          store.updatePlayerScore(playerId, 1);
+          playSound('star');
+          store.setGameData({ ...state, cards: newCards });
+          break; // Joker instantly resolves, they keep their turn
+        }
+
         if (state.flip1 === null) {
           const newCards = [...cards];
           const cIndex = newCards.findIndex(c => c.id === cardId);
@@ -466,6 +476,7 @@ class PeerSyncManager {
             const c1 = currentCards.find(c => c.id === state.flip1);
             const c2 = currentCards.find(c => c.id === cardId);
             
+            let nextTurn = currentStore.gameData.currentTurn;
             if (c1 && c2 && c1.emoji === c2.emoji) {
               c1.claimedBy = playerId;
               c2.claimedBy = playerId;
@@ -477,9 +488,17 @@ class PeerSyncManager {
               if (c1) c1.flipped = false;
               if (c2) c2.flipped = false;
               playSound('trap');
+              nextTurn = playerId === 'p1' ? 'p2' : 'p1';
             }
             
-            currentStore.setGameData({ ...currentStore.gameData, cards: currentCards, flip1: null, flip2: null, lock: false });
+            currentStore.setGameData({ 
+              ...currentStore.gameData, 
+              cards: currentCards, 
+              flip1: null, 
+              flip2: null, 
+              lock: false, 
+              currentTurn: nextTurn 
+            });
             this.sendState(useGameStore.getState());
           }, 1000);
         }

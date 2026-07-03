@@ -12,8 +12,14 @@ export const useGameStore = create((set, get) => ({
   // Global Game State
   gameState: 'home', // 'home', 'select', 'rules', 'playing', 'game-over'
   currentGame: null, 
+  gameSettings: {
+    memoryGridSize: '4x4' // '4x4' or '5x5'
+  },
   setGameState: (state) => set({ gameState: state }),
   setCurrentGame: (gameId) => set({ currentGame: gameId }),
+  updateGameSettings: (settings) => set((state) => ({ 
+    gameSettings: { ...state.gameSettings, ...settings } 
+  })),
 
   // Player State
   players: {
@@ -60,6 +66,7 @@ export const useGameStore = create((set, get) => ({
     return {
       gameState: newState.gameState,
       currentGame: newState.currentGame,
+      gameSettings: newState.gameSettings,
       gameData: newState.gameData,
       players: {
         [myPlayerId]: state.players[myPlayerId], // Keep local cursor
