@@ -44,13 +44,14 @@ const GAME_RULES = {
     ],
     color: 'var(--neon-green)'
   },
-  'laser-maze': {
-    title: 'Laser Maze',
+  'tron-lightcycles': {
+    title: 'Tron Lightcycles',
     rules: [
-      'Cooperative teamwork required.',
-      'Player 1 (Blue) clicks mirrors to rotate them.',
-      'Player 2 (Red) uses W,A,S,D to move the character.',
-      'Guide the laser to the exit to unlock it!'
+      'You control a constantly moving neon lightcycle.',
+      'Use W, A, S, D or Arrow Keys to steer.',
+      'Your bike leaves a solid energy wall behind it.',
+      'Box your opponent in! If they crash into any wall, you win.',
+      'Best 3 out of 5 rounds wins the match.'
     ],
     color: 'var(--neon-gold)'
   }

@@ -9,7 +9,7 @@ import { MouseDuel } from './games/MouseDuel';
 import { ButtonChaos } from './games/ButtonChaos';
 import { PuzzleCoop } from './games/PuzzleCoop';
 import { MemoryFlip } from './games/MemoryFlip';
-import { LaserMaze } from './games/LaserMaze';
+import { TronLightcycles } from './games/TronLightcycles';
 import { ArcadeBackground } from './components/ArcadeBackground';
 import { audioEngine } from './utils/audioEngine';
 
@@ -42,7 +42,7 @@ const GameRenderer = () => {
     case 'button-chaos': return <ButtonChaos />;
     case 'puzzle-coop': return <PuzzleCoop />;
     case 'memory-flip': return <MemoryFlip />;
-    case 'laser-maze': return <LaserMaze />;
+    case 'tron-lightcycles': return <TronLightcycles />;
     default: return <div>Unknown Game</div>;
   }
 };

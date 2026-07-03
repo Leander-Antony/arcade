@@ -8,7 +8,7 @@ const GAMES = [
   { id: 'button-chaos', name: 'Grid Capture', color: 'var(--neon-red)', desc: 'Claim tiles and steal territory in 30 seconds!', icon: '🟩' },
   { id: 'puzzle-coop', name: 'Puzzle Co-op', color: 'var(--neon-purple)', desc: 'Work together to solve the jigsaw puzzle.', icon: '🧩' },
   { id: 'memory-flip', name: 'Memory Flip', color: 'var(--neon-green)', desc: 'Find matching pairs simultaneously.', icon: '🎴' },
-  { id: 'laser-maze', name: 'Laser Maze', color: 'var(--neon-gold)', desc: 'P1 controls mirrors, P2 moves character.', icon: '⚡' }
+  { id: 'tron-lightcycles', name: 'Tron Lightcycles', color: 'var(--neon-gold)', desc: 'Trap your opponent with your neon trail.', icon: '🏍️' }
 ];
 
 export const GameSelectionScreen = () => {

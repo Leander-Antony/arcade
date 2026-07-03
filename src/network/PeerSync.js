@@ -292,10 +292,12 @@ class PeerSyncManager {
     
     const store = useGameStore.getState();
     switch(action) {
-      case 'SELECT_GAME':
+      case 'SELECT_GAME': {
         store.setCurrentGame(payload.gameId);
         store.setGameState('rules');
+        store.setGameData(null); // Clear old match data
         break;
+      }
       case 'GOTO_SELECT':
         store.setGameState('select');
         break;
@@ -306,6 +308,7 @@ class PeerSyncManager {
         store.setGameState('home');
         store.setCurrentGame(null);
         store.resetScores();
+        store.setGameData(null);
         break;
       case 'UPDATE_GAME_DATA':
         store.setGameData(payload.data);
@@ -480,6 +483,20 @@ class PeerSyncManager {
             this.sendState(useGameStore.getState());
           }, 1000);
         }
+        break;
+      }
+      case 'ACTION_TRON_TURN': {
+        const { playerId, dx, dy } = payload;
+        store.setGameData(prev => {
+          if (prev && prev.status === 'playing') {
+            const pState = prev[playerId];
+            // Prevent 180 degree immediate death turns
+            if (pState.dx !== -dx || pState.dy !== -dy) {
+              return { ...prev, [playerId]: { ...pState, dx, dy } };
+            }
+          }
+          return prev;
+        });
         break;
       }
       case 'ACTION_ROTATE_MIRROR': {
