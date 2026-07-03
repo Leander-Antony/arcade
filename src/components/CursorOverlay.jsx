@@ -36,7 +36,7 @@ export const CursorOverlay = () => {
   const p2Pos = getAbsPos(players.p2.cursor);
 
   return (
-    <div className="absolute-inset" style={{ pointerEvents: 'none', zIndex: 9999 }}>
+    <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 9999 }}>
       {/* Player 1 Cursor (Blue) */}
       <div 
         style={{
