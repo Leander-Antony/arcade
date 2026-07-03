@@ -52,7 +52,6 @@ function App() {
   const players = useGameStore(state => state.players);
 
   useEffect(() => {
-    peerSync.init();
     audioEngine.init(); // Initialize audio context early
   }, []);
 

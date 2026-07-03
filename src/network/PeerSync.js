@@ -2,15 +2,7 @@ import { Peer } from 'peerjs';
 import { useGameStore } from '../store/useGameStore';
 import { playSound } from '../utils/sounds';
 
-// Generate or retrieve room ID from URL
-let roomParam = new URLSearchParams(window.location.search).get('room');
-if (!roomParam) {
-  roomParam = Math.random().toString(36).substring(2, 8).toUpperCase();
-  const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?room=' + roomParam;
-  window.history.pushState({path: newUrl}, '', newUrl);
-}
-export const ROOM_CODE = roomParam;
-const GLOBAL_ROOM_ID = `arcade-room-${roomParam}`;
+// Room code is managed dynamically via store and UI now.
 function calculateLaser(grid) {
   let cx = 0, cy = 0, cdir = 'right';
   const path = [];
@@ -53,55 +45,29 @@ class PeerSyncManager {
     this.initialized = false;
   }
 
-  init() {
-    if (this.initialized) return;
-    this.initialized = true;
-    
+  hostGame() {
     const store = useGameStore.getState();
     store.setConnectionStatus('connecting');
 
-    // Attempt to connect as client first
-    this.peer = new Peer({ debug: 2 });
-    
-    this.peer.on('open', (id) => {
-      console.log('My client peer ID is: ' + id);
-      // Try connecting to the global room ID
-      const conn = this.peer.connect(GLOBAL_ROOM_ID, {
-        reliable: true
-      });
+    // Generate a new random room code
+    const roomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+    store.setRoomCode(roomCode);
+    const hostRoomId = `arcade-room-${roomCode}`;
 
-      conn.on('open', () => {
-        console.log('Connected to host!');
-        this.connection = conn;
-        this.isHost = false;
-        useGameStore.getState().setIsHost(false);
-        useGameStore.getState().setConnectionStatus('connected');
-        this.setupConnectionHandlers(conn);
-      });
-
-      this.peer.on('error', (err) => {
-        if (err.type === 'peer-unavailable') {
-          // Host doesn't exist, so we become the host
-          console.log('No host found, becoming host...');
-          this.becomeHost();
-        }
-      });
-    });
-  }
-  
-  becomeHost() {
-    if (this.peer) {
-      this.peer.destroy();
-    }
+    if (this.peer) this.peer.destroy();
     
-    // Create new peer with the global ID
-    this.peer = new Peer(GLOBAL_ROOM_ID, { debug: 2 });
+    this.peer = new Peer(hostRoomId, { debug: 2 });
     
     this.peer.on('open', (id) => {
       console.log('Host established: ' + id);
       this.isHost = true;
-      useGameStore.getState().setIsHost(true);
-      useGameStore.getState().setConnectionStatus('waiting');
+      store.setIsHost(true);
+      store.setConnectionStatus('waiting');
+    });
+
+    this.peer.on('error', (err) => {
+      console.error('Host peer error:', err);
+      store.setConnectionStatus('disconnected');
     });
 
     this.peer.on('connection', (conn) => {
@@ -214,9 +180,6 @@ class PeerSyncManager {
       }
       if (this.isHost) {
         useGameStore.getState().setConnectionStatus('waiting');
-      } else {
-        // Try to reconnect
-        setTimeout(() => this.init(), 2000);
       }
     });
   }

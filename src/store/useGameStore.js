@@ -6,6 +6,8 @@ export const useGameStore = create((set, get) => ({
   connectionStatus: 'disconnected', // 'disconnected', 'connecting', 'waiting', 'connected'
   setConnectionStatus: (status) => set({ connectionStatus: status }),
   setIsHost: (isHost) => set({ isHost }),
+  roomCode: null,
+  setRoomCode: (code) => set({ roomCode: code }),
 
   // Global Game State
   gameState: 'home', // 'home', 'select', 'rules', 'playing', 'game-over'
