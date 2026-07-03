@@ -49,9 +49,13 @@ class PeerSyncManager {
     this.isHost = false;
     this.unsubscribe = null;
     this.imageChunks = [];
+    this.initialized = false;
   }
 
   init() {
+    if (this.initialized) return;
+    this.initialized = true;
+    
     const store = useGameStore.getState();
     store.setConnectionStatus('connecting');
 
