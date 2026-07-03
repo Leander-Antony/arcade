@@ -14,24 +14,24 @@
 }
 
 .bg-gradient {
-  background: radial-gradient(circle at center, #0a0a1a 0%, #020205 100%);
+  background: radial-gradient(circle at center, #1a1a3a 0%, #000000 100%);
 }
 
 .grid-layer {
   background-size: 50px 50px;
   background-image: 
-    linear-gradient(to right, rgba(255, 182, 193, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(0, 243, 255, 0.05) 1px, transparent 1px);
+    linear-gradient(to right, rgba(255, 182, 193, 0.15) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 243, 255, 0.15) 1px, transparent 1px);
   perspective: 500px;
   transform-origin: center center;
   transition: transform 0.1s ease-out;
 }
 
 .energy-waves {
-  background: linear-gradient(180deg, transparent 0%, rgba(255, 182, 193, 0.02) 50%, transparent 100%);
+  background: linear-gradient(180deg, transparent 0%, rgba(255, 182, 193, 0.06) 50%, transparent 100%);
   background-size: 100% 200%;
   animation: wave-move 10s linear infinite;
-  opacity: 0.5;
+  opacity: 0.7;
 }
 
 @keyframes wave-move {
