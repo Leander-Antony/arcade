@@ -56,9 +56,14 @@ export const MemoryFlip = () => {
       {/* Grid */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
-        gap: '20px',
-        marginTop: '80px'
+        gridTemplateColumns: 'repeat(4, minmax(60px, 15vh))',
+        gridAutoRows: 'minmax(60px, 15vh)',
+        gap: '2vh',
+        justifyContent: 'center',
+        alignContent: 'center',
+        width: '100%',
+        marginTop: '60px',
+        paddingBottom: '20px'
       }}>
         {cards.map(card => {
           let shadow = '0 0 10px rgba(0, 243, 255, 0.1)';
@@ -74,27 +79,41 @@ export const MemoryFlip = () => {
           return (
             <motion.div
               key={card.id}
-              whileHover={{ scale: (card.flipped || card.claimedBy) ? 1 : 1.05 }}
+              whileHover={{ scale: (card.flipped || card.claimedBy) ? 1 : 1.05, y: (card.flipped || card.claimedBy) ? 0 : -5 }}
               whileTap={{ scale: (card.flipped || card.claimedBy) ? 1 : 0.95 }}
               onMouseDown={() => handleCardClick(card)}
-              className="glass-panel flex-center"
               style={{
-                width: '100px',
-                height: '140px',
+                width: '100%',
+                aspectRatio: '1 / 1',
                 cursor: 'none',
                 pointerEvents: 'auto',
-                boxShadow: shadow,
-                border: border,
-                backgroundColor: card.flipped || card.claimedBy ? 'var(--panel-bg)' : 'rgba(0,0,0,0.5)'
+                perspective: '1000px'
               }}
             >
               <motion.div
                 initial={false}
-                animate={{ rotateY: (card.flipped || card.claimedBy) ? 0 : 180 }}
-                transition={{ duration: 0.3 }}
-                style={{ fontSize: '3rem', transformStyle: 'preserve-3d' }}
+                animate={{ rotateY: (card.flipped || card.claimedBy) ? 180 : 0 }}
+                transition={{ duration: 0.4, type: 'spring', stiffness: 260, damping: 20 }}
+                style={{ width: '100%', height: '100%', transformStyle: 'preserve-3d', position: 'relative' }}
               >
-                {(card.flipped || card.claimedBy) ? card.emoji : '❓'}
+                {/* Front Face (Question Mark) */}
+                <div style={{
+                  position: 'absolute', width: '100%', height: '100%', backfaceVisibility: 'hidden',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem',
+                  backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: '8px',
+                  border: border, boxShadow: shadow
+                }}>❓</div>
+                
+                {/* Back Face (Emoji) */}
+                <div style={{
+                  position: 'absolute', width: '100%', height: '100%', backfaceVisibility: 'hidden',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem',
+                  backgroundColor: 'var(--panel-bg)', borderRadius: '8px',
+                  transform: 'rotateY(180deg)',
+                  border: border, boxShadow: shadow
+                }}>
+                  {card.emoji}
+                </div>
               </motion.div>
             </motion.div>
           );

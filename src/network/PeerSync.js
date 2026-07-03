@@ -446,13 +446,20 @@ class PeerSyncManager {
         cards[cardIndex].flipped = true;
 
         if (state.flip1 === null) {
-          store.setGameData({ ...state, cards, flip1: cardId });
+          const newCards = [...cards];
+          const cIndex = newCards.findIndex(c => c.id === cardId);
+          newCards[cIndex] = { ...newCards[cIndex], flipped: true };
+          store.setGameData({ ...state, cards: newCards, flip1: cardId });
         } else if (state.flip2 === null) {
-          store.setGameData({ ...state, cards, flip2: cardId, lock: true });
+          const newCards = [...cards];
+          const cIndex = newCards.findIndex(c => c.id === cardId);
+          newCards[cIndex] = { ...newCards[cIndex], flipped: true };
+          store.setGameData({ ...state, cards: newCards, flip2: cardId, lock: true });
           
           setTimeout(() => {
             const currentStore = useGameStore.getState();
-            const currentCards = [...currentStore.gameData.cards];
+            const currentCards = currentStore.gameData.cards.map(c => ({...c}));
+            
             const c1 = currentCards.find(c => c.id === state.flip1);
             const c2 = currentCards.find(c => c.id === cardId);
             
@@ -470,7 +477,7 @@ class PeerSyncManager {
             }
             
             currentStore.setGameData({ ...currentStore.gameData, cards: currentCards, flip1: null, flip2: null, lock: false });
-            this.sendState(currentStore);
+            this.sendState(useGameStore.getState());
           }, 1000);
         }
         break;
