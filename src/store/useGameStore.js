@@ -15,6 +15,13 @@ export const useGameStore = create((set, get) => ({
   gameSettings: {
     memoryGridSize: '4x4' // '4x4' or '5x5'
   },
+  isShaking: false,
+  triggerShake: () => {
+    set({ isShaking: true });
+    setTimeout(() => {
+      set({ isShaking: false });
+    }, 300);
+  },
   setGameState: (state) => set({ gameState: state }),
   setCurrentGame: (gameId) => set({ currentGame: gameId }),
   updateGameSettings: (settings) => set((state) => ({ 

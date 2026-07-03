@@ -104,6 +104,10 @@ export const MouseDuel = () => {
         if (p1ScoreDelta !== 0) state.updatePlayerScore('p1', p1ScoreDelta);
         if (p2ScoreDelta !== 0) state.updatePlayerScore('p2', p2ScoreDelta);
         if (soundToPlay) peerSync.sendAction('PLAY_SOUND', { sound: soundToPlay });
+        if (soundToPlay === 'trap') {
+          state.triggerShake();
+          peerSync.sendAction('TRIGGER_SHAKE');
+        }
       }
     };
     

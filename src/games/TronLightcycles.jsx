@@ -86,6 +86,8 @@ export const TronLightcycles = () => {
           useGameStore.getState().setGameData(newState);
           peerSync.sendState(useGameStore.getState());
           peerSync.sendAction('PLAY_SOUND', { sound: 'trap' }); 
+          useGameStore.getState().triggerShake();
+          peerSync.sendAction('TRIGGER_SHAKE');
           
           // Check Match Win
           setTimeout(() => {

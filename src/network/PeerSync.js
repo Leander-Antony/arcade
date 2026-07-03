@@ -148,6 +148,8 @@ class PeerSyncManager {
           this.handleClientAction(data.action, data.payload);
         } else if (data.action === 'PLAY_SOUND') {
           playSound(data.payload.sound);
+        } else if (data.action === 'TRIGGER_SHAKE') {
+          useGameStore.getState().triggerShake();
         } else if (data.action === 'ACTION_SET_PUZZLE_CONFIG') {
           // Client receives the puzzle config
           useGameStore.getState().setGameData(prev => ({
@@ -454,6 +456,10 @@ class PeerSyncManager {
           newCards[cardIndex] = { ...newCards[cardIndex], flipped: true, claimedBy: playerId };
           store.updatePlayerScore(playerId, 1);
           playSound('star');
+          store.triggerShake(); // Physical feedback!
+          if (peerSync.connection && peerSync.connection.open) {
+            peerSync.connection.send({ type: 'ACTION', action: 'TRIGGER_SHAKE', payload: {} });
+          }
           store.setGameData({ ...state, cards: newCards });
           break; // Joker instantly resolves, they keep their turn
         }

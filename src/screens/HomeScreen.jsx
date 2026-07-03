@@ -7,6 +7,7 @@ import { audioEngine } from '../utils/audioEngine';
 export const HomeScreen = () => {
   const { isHost, connectionStatus, roomCode } = useGameStore();
   const [coinInserted, setCoinInserted] = useState(false);
+  const [isCoinDropping, setIsCoinDropping] = useState(false);
   const [joinMode, setJoinMode] = useState(false);
   const [joinCode, setJoinCode] = useState('');
   
@@ -23,6 +24,24 @@ export const HomeScreen = () => {
       className="flex-center flex-col h-full w-full"
       style={{ position: 'relative', zIndex: 10 }}
     >
+      {isCoinDropping && (
+        <motion.div 
+          style={{ position: 'absolute', zIndex: 9999, fontSize: '10rem', filter: 'drop-shadow(0 0 20px var(--neon-gold))' }}
+          initial={{ y: -600, scale: 2 }}
+          animate={{ y: 0, scale: 1 }}
+          transition={{ type: 'spring', bounce: 0.6, duration: 0.8 }}
+          onAnimationComplete={() => {
+            useGameStore.getState().triggerShake();
+            setTimeout(() => {
+              setIsCoinDropping(false);
+              setCoinInserted(true);
+            }, 300);
+          }}
+        >
+          🪙
+        </motion.div>
+      )}
+
       <div className="glass-panel" style={{ padding: '4rem', textAlign: 'center', width: '80%', maxWidth: '800px', position: 'relative' }}>
         <h1 className="retro-text neon-text-baby-pink chromatic-text animate-flicker" style={{ fontSize: '6rem', marginBottom: '0.5rem', letterSpacing: '8px' }}>
           ARCADE ENTRY
@@ -31,16 +50,16 @@ export const HomeScreen = () => {
           P2P MULTIPLAYER SYSTEM
         </p>
 
-        {connectionStatus === 'disconnected' && !coinInserted && (
+        {connectionStatus === 'disconnected' && !coinInserted && !isCoinDropping && (
           <div 
             className="flex-center flex-col" 
-            style={{ marginTop: '2rem', cursor: 'pointer', padding: '2rem' }} 
+            style={{ marginTop: '2rem', padding: '2rem' }} 
             onClick={() => {
               audioEngine.playCoinInsert();
-              setCoinInserted(true);
+              setIsCoinDropping(true);
             }}
           >
-            <p className="arcade-insert-coin" style={{ cursor: 'pointer' }}>
+            <p className="arcade-insert-coin" style={{ cursor: 'none' }}>
               INSERT COIN
             </p>
             <p className="retro-text" style={{ color: 'var(--text-muted)', fontSize: '1.2rem', marginTop: '1rem' }}>

@@ -11,7 +11,10 @@ import { PuzzleCoop } from './games/PuzzleCoop';
 import { MemoryFlip } from './games/MemoryFlip';
 import { TronLightcycles } from './games/TronLightcycles';
 import { ArcadeBackground } from './components/ArcadeBackground';
+import { CrtOverlay } from './components/CrtOverlay';
+import { ChallengerBlinker } from './components/ChallengerBlinker';
 import { audioEngine } from './utils/audioEngine';
+import { motion } from 'framer-motion';
 
 const GameRenderer = () => {
   const currentGame = useGameStore(state => state.currentGame);
@@ -50,6 +53,7 @@ const GameRenderer = () => {
 function App() {
   const gameState = useGameStore(state => state.gameState);
   const players = useGameStore(state => state.players);
+  const isShaking = useGameStore(state => state.isShaking);
 
   useEffect(() => {
     audioEngine.init(); // Initialize audio context early
@@ -64,10 +68,16 @@ function App() {
   return (
     <>
       <ArcadeBackground />
+      <CrtOverlay />
       <CursorOverlay />
       
-      <div className="crt-turn-on" style={{ position: 'relative', zIndex: 10, width: '100%', height: '100%' }}>
-        {gameState === 'home' && <HomeScreen />}
+      <motion.div 
+        style={{ position: 'relative', zIndex: 10, width: '100%', height: '100%' }}
+        animate={isShaking ? { x: [-20, 20, -20, 20, -10, 10, 0], y: [10, -10, 10, -10, 0] } : { x: 0, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <div className="crt-turn-on" style={{ width: '100%', height: '100%' }}>
+          {gameState === 'home' && <HomeScreen />}
         {gameState === 'select' && <GameSelectionScreen />}
         {gameState === 'rules' && <RulesScreen />}
         {gameState === 'playing' && <GameRenderer />}
@@ -106,8 +116,9 @@ function App() {
             RETURN TO MENU
           </button>
         </div>
-      )}
-      </div>
+        )}
+        </div>
+      </motion.div>
     </>
   );
 }
