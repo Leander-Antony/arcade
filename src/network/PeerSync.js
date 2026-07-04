@@ -37,6 +37,7 @@ function calculateLaser(grid) {
 
 const peerConfig = {
   debug: 2,
+  pingInterval: 5000,
   config: {
     iceServers: [
       { urls: 'stun:stun.l.google.com:19302' },
@@ -85,7 +86,16 @@ class PeerSyncManager {
     
     this.peer = new Peer(hostRoomId, peerConfig);
     
+    const hostTimeout = setTimeout(() => {
+       if (useGameStore.getState().connectionStatus === 'connecting') {
+          alert("Signaling server timeout. The connection is being actively blocked by your ISP or firewall.");
+          store.setConnectionStatus('disconnected');
+          if (this.peer) this.peer.destroy();
+       }
+    }, 12000);
+    
     this.peer.on('open', (id) => {
+      clearTimeout(hostTimeout);
       console.log('Host established: ' + id);
       this.isHost = true;
       store.setIsHost(true);
@@ -224,6 +234,14 @@ class PeerSyncManager {
     if (this.peer) this.peer.destroy();
     this.peer = new Peer(peerConfig);
     
+    const joinTimeout = setTimeout(() => {
+       if (useGameStore.getState().connectionStatus === 'connecting') {
+          alert("Connection timed out. The host is unreachable or your network is blocking Peer-to-Peer traffic.");
+          store.setConnectionStatus('disconnected');
+          if (this.peer) this.peer.destroy();
+       }
+    }, 15000);
+    
     this.peer.on('open', (id) => {
       console.log('My client peer ID is: ' + id);
       const conn = this.peer.connect(hostRoomId, {
@@ -231,6 +249,7 @@ class PeerSyncManager {
       });
 
       conn.on('open', () => {
+        clearTimeout(joinTimeout);
         console.log('Connected to host!');
         this.connection = conn;
         this.isHost = false;
