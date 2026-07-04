@@ -1,4 +1,4 @@
-import { Peer } from 'peerjs';
+import { io } from 'socket.io-client';
 import { useGameStore } from '../store/useGameStore';
 import { playSound } from '../utils/sounds';
 
@@ -35,104 +35,38 @@ function calculateLaser(grid) {
   return { laserPath: path, exitLocked: !exitHit };
 }
 
-const peerConfig = {
-  host: import.meta.env.VITE_PEER_HOST || '0.peerjs.com',
-  port: import.meta.env.VITE_PEER_PORT ? parseInt(import.meta.env.VITE_PEER_PORT) : 443,
-  path: import.meta.env.VITE_PEER_PATH || '/',
-  secure: import.meta.env.VITE_PEER_SECURE !== 'false',
-  debug: 2,
-  pingInterval: 5000,
-  config: {
-    iceServers: [
-      { urls: 'stun:stun.l.google.com:19302' },
-      { urls: 'stun:global.stun.twilio.com:3478' },
-      {
-        urls: 'turn:openrelay.metered.ca:80',
-        username: 'openrelayproject',
-        credential: 'openrelayproject'
-      },
-      {
-        urls: 'turn:openrelay.metered.ca:443',
-        username: 'openrelayproject',
-        credential: 'openrelayproject'
-      },
-      {
-        urls: 'turn:openrelay.metered.ca:443?transport=tcp',
-        username: 'openrelayproject',
-        credential: 'openrelayproject'
-      }
-    ]
-  }
-};
-
 class PeerSyncManager {
   constructor() {
-    this.peer = null;
-    this.connection = null;
+    this.socket = null;
     this.isHost = false;
     this.unsubscribe = null;
     this.imageChunks = [];
-    this.initialized = false;
-  }
-
-  hostGame() {
-    const store = useGameStore.getState();
-    store.setConnectionStatus('connecting');
-
-    this.connection = null; // Always reset
-
-    // Generate a new random room code
-    const roomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-    store.setRoomCode(roomCode);
-    const hostRoomId = `arcade-room-${roomCode}`;
-
-    if (this.peer) this.peer.destroy();
+    this.roomCode = null;
     
-    this.peer = new Peer(hostRoomId, peerConfig);
-    
-    const hostTimeout = setTimeout(() => {
-       if (useGameStore.getState().connectionStatus === 'connecting') {
-          alert("Signaling server timeout. The connection is being actively blocked by your ISP or firewall.");
-          store.setConnectionStatus('disconnected');
-          if (this.peer) this.peer.destroy();
-       }
-    }, 12000);
-    
-    this.peer.on('open', (id) => {
-      clearTimeout(hostTimeout);
-      console.log('Host established: ' + id);
-      this.isHost = true;
-      store.setIsHost(true);
-      store.setConnectionStatus('waiting');
-    });
-
-    this.peer.on('error', (err) => {
-      console.error('Host peer error:', err);
-      store.setConnectionStatus('disconnected');
-      alert('Network error while hosting: ' + err.type + '. Check your internet connection.');
-    });
-
-    this.peer.on('connection', (conn) => {
-      if (this.connection) {
-        console.log('Rejecting additional connection');
-        conn.close();
-        return;
-      }
-      console.log('Client connection received...');
+    // Connect to the Cloudflare tunnel (or fallback to localhost if missing)
+    const serverUrl = import.meta.env.VITE_PEER_HOST 
+      ? `https://${import.meta.env.VITE_PEER_HOST}` 
+      : 'http://localhost:9000';
       
-      conn.on('open', () => {
-        console.log('Client connection OPEN!');
-        this.connection = conn;
-        
+    this.socket = io(serverUrl, {
+      autoConnect: false // We connect manually when host/join is clicked
+    });
+    
+    this.setupSocketHandlers();
+  }
+  
+  setupSocketHandlers() {
+    this.socket.on('peer_connected', ({ id, isHost }) => {
+      if (this.isHost && !isHost) {
+        console.log('Client connected to room!');
         const store = useGameStore.getState();
         store.setConnectionStatus('connected');
         
         store.setGameState('home');
         store.setCurrentGame(null);
         store.resetScores();
-
-        this.setupConnectionHandlers(conn);
         
+        // Start broadcasting state
         let lastCoreState = '';
         if (this.unsubscribe) this.unsubscribe();
         this.unsubscribe = useGameStore.subscribe((state) => {
@@ -157,67 +91,61 @@ class PeerSyncManager {
         const currentStore = useGameStore.getState();
         this.sendState(currentStore);
         
-        // If a client connects late (or refreshes) during a puzzle, send them the image chunks
         if (currentStore.currentGame === 'puzzle-coop' && currentStore.gameData?.puzzleImg) {
           this.sendImage(currentStore.gameData.puzzleImg);
         }
-      });
-    });
-    
-    this.peer.on('error', (err) => {
-      console.error('Host error:', err);
-    });
-  }
-
-  setupConnectionHandlers(conn) {
-    conn.on('data', (data) => {
-      if (data.type === 'STATE_SYNC' && !this.isHost) {
-        const currentState = useGameStore.getState();
-        currentState.syncFullState({
-          ...data.state,
-          isHost: false, // ensure client stays client
-          players: {
-            p1: { ...data.state.players.p1, cursor: currentState.players.p1.cursor }, // Preserve remote cursor
-            p2: { ...data.state.players.p2, cursor: currentState.players.p2.cursor }  // Preserve local cursor
-          }
-        });
-      } else if (data.type === 'ACTION') {
-        if (this.isHost) {
-          console.log('HOST RECEIVED ACTION:', data.action, data.payload);
-          this.handleClientAction(data.action, data.payload);
-        } else if (data.action === 'PLAY_SOUND') {
-          playSound(data.payload.sound);
-        } else if (data.action === 'TRIGGER_SHAKE') {
-          useGameStore.getState().triggerShake();
-        } else if (data.action === 'ACTION_SET_PUZZLE_CONFIG') {
-          // Client receives the puzzle config
-          useGameStore.getState().setGameData(prev => ({
-            ...data.payload.config,
-            puzzleImg: prev?.puzzleImg
-          }));
-        }
-      } else if (data.type === 'IMAGE_CHUNK') {
-        this.imageChunks[data.chunkIndex] = data.data;
-        // Check if all chunks received
-        if (this.imageChunks.filter(Boolean).length === data.totalChunks) {
-          const fullImage = this.imageChunks.join('');
-          this.imageChunks = []; // Reset for future images
-          useGameStore.getState().setGameData(prev => ({
-            ...prev,
-            puzzleImg: fullImage
-          }));
-          console.log('Successfully received and assembled full image!');
-        }
-      } else if (data.type === 'CURSOR') {
-        const playerId = this.isHost ? 'p2' : 'p1'; // If I am host, data is from p2
-        useGameStore.getState().updateCursor(playerId, data.x, data.y);
       }
     });
 
-    conn.on('close', () => {
-      console.log('Connection closed');
+    this.socket.on('state_sync', (state) => {
+      if (!this.isHost) {
+        const currentState = useGameStore.getState();
+        currentState.syncFullState({
+          ...state,
+          isHost: false, 
+          players: {
+            p1: { ...state.players.p1, cursor: currentState.players.p1.cursor },
+            p2: { ...state.players.p2, cursor: currentState.players.p2.cursor }
+          }
+        });
+      }
+    });
+
+    this.socket.on('action', ({ action, payload }) => {
+      if (this.isHost) {
+        this.handleClientAction(action, payload);
+      } else if (action === 'PLAY_SOUND') {
+        playSound(payload.sound);
+      } else if (action === 'TRIGGER_SHAKE') {
+        useGameStore.getState().triggerShake();
+      } else if (action === 'ACTION_SET_PUZZLE_CONFIG') {
+        useGameStore.getState().setGameData(prev => ({
+          ...payload.config,
+          puzzleImg: prev?.puzzleImg
+        }));
+      }
+    });
+
+    this.socket.on('cursor', ({ x, y }) => {
+      const playerId = this.isHost ? 'p2' : 'p1';
+      useGameStore.getState().updateCursor(playerId, x, y);
+    });
+
+    this.socket.on('image_chunk', (data) => {
+      this.imageChunks[data.chunkIndex] = data.data;
+      if (this.imageChunks.filter(Boolean).length === data.totalChunks) {
+        const fullImage = this.imageChunks.join('');
+        this.imageChunks = []; 
+        useGameStore.getState().setGameData(prev => ({
+          ...prev,
+          puzzleImg: fullImage
+        }));
+      }
+    });
+
+    this.socket.on('disconnect', () => {
+      console.log('Socket disconnected');
       useGameStore.getState().setConnectionStatus('disconnected');
-      this.connection = null;
       if (this.unsubscribe) {
         this.unsubscribe();
         this.unsubscribe = null;
@@ -228,60 +156,68 @@ class PeerSyncManager {
     });
   }
 
+  hostGame() {
+    const store = useGameStore.getState();
+    store.setConnectionStatus('connecting');
+
+    const roomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+    store.setRoomCode(roomCode);
+    this.roomCode = roomCode;
+    
+    this.isHost = true;
+    store.setIsHost(true);
+    
+    if (this.socket.connected) this.socket.disconnect();
+    this.socket.connect();
+    
+    const hostTimeout = setTimeout(() => {
+       if (useGameStore.getState().connectionStatus === 'connecting') {
+          alert("Could not reach your local relay server.");
+          store.setConnectionStatus('disconnected');
+          this.socket.disconnect();
+       }
+    }, 12000);
+    
+    this.socket.once('connect', () => {
+      clearTimeout(hostTimeout);
+      this.socket.emit('join_room', { roomCode, isHost: true });
+      store.setConnectionStatus('waiting');
+    });
+  }
+
   joinGame(roomCode) {
     const store = useGameStore.getState();
     store.setConnectionStatus('connecting');
-    const hostRoomId = `arcade-room-${roomCode.trim().toUpperCase()}`;
-
-    this.connection = null; // Always reset
-
-    if (this.peer) this.peer.destroy();
-    this.peer = new Peer(peerConfig);
+    this.roomCode = roomCode.trim().toUpperCase();
+    
+    this.isHost = false;
+    store.setIsHost(false);
+    
+    if (this.socket.connected) this.socket.disconnect();
+    this.socket.connect();
     
     const joinTimeout = setTimeout(() => {
        if (useGameStore.getState().connectionStatus === 'connecting') {
-          alert("Connection timed out. The host is unreachable or your network is blocking Peer-to-Peer traffic.");
+          alert("Connection timed out. The host relay is unreachable.");
           store.setConnectionStatus('disconnected');
-          if (this.peer) this.peer.destroy();
+          this.socket.disconnect();
        }
     }, 15000);
     
-    this.peer.on('open', (id) => {
-      console.log('My client peer ID is: ' + id);
-      const conn = this.peer.connect(hostRoomId, {
-        reliable: true
-      });
-
-      conn.on('open', () => {
-        clearTimeout(joinTimeout);
-        console.log('Connected to host!');
-        this.connection = conn;
-        this.isHost = false;
-        store.setIsHost(false);
-        store.setConnectionStatus('connected');
-        this.setupConnectionHandlers(conn);
-      });
-      
-      conn.on('error', (err) => {
-        console.error('Connection error:', err);
-      });
-    });
-
-    this.peer.on('error', (err) => {
-      console.error('Client peer error:', err);
-      store.setConnectionStatus('disconnected');
-      alert('Connection error: ' + err.type + '. Check the code and your internet connection.');
+    this.socket.once('connect', () => {
+      clearTimeout(joinTimeout);
+      this.socket.emit('join_room', { roomCode: this.roomCode, isHost: false });
+      store.setConnectionStatus('connected');
     });
   }
 
   sendAction(action, payload) {
     console.log('SENDING ACTION:', action, payload);
-    if (this.connection && this.connection.open) {
+    if (this.socket && this.socket.connected) {
       if (!this.isHost) {
-        this.connection.send({ type: 'ACTION', action, payload });
+        this.socket.emit('action', { roomCode: this.roomCode, action, payload });
       } else {
-        // Host sending action to client (e.g. sound)
-        this.connection.send({ type: 'ACTION', action, payload });
+        this.socket.emit('action', { roomCode: this.roomCode, action, payload });
         this.handleClientAction(action, payload);
       }
     } else if (this.isHost) {
@@ -290,9 +226,8 @@ class PeerSyncManager {
   }
 
   sendState(state) {
-    if (this.connection && this.connection.open && this.isHost) {
+    if (this.socket && this.socket.connected && this.isHost) {
       try {
-        // Strip out puzzleImg to prevent 100KB payloads on every sync
         let safeGameData = state.gameData;
         if (state.gameData && state.gameData.puzzleImg) {
           const { puzzleImg, ...rest } = state.gameData;
@@ -306,7 +241,7 @@ class PeerSyncManager {
           gameData: safeGameData,
           players: state.players
         };
-        this.connection.send({ type: 'STATE_SYNC', state: serializableState });
+        this.socket.emit('state_sync', { roomCode: this.roomCode, state: serializableState });
       } catch (err) {
         console.error('Error sending state:', err);
       }
@@ -314,26 +249,24 @@ class PeerSyncManager {
   }
 
   sendCursor(x, y) {
-    // Only send if connected
-    if (this.connection && this.connection.open) {
-      this.connection.send({ type: 'CURSOR', x, y });
+    if (this.socket && this.socket.connected) {
+      this.socket.emit('cursor', { roomCode: this.roomCode, x, y });
     }
   }
 
   async sendImage(base64Str) {
-    if (!this.connection || !this.connection.open || !this.isHost) return;
-    const CHUNK_SIZE = 16384; // 16KB chunks to easily pass through WebRTC limits
+    if (!this.socket || !this.socket.connected || !this.isHost) return;
+    const CHUNK_SIZE = 16384; 
     const totalChunks = Math.ceil(base64Str.length / CHUNK_SIZE);
     
     for (let i = 0; i < totalChunks; i++) {
       const chunk = base64Str.substr(i * CHUNK_SIZE, CHUNK_SIZE);
-      this.connection.send({
-        type: 'IMAGE_CHUNK',
+      this.socket.emit('image_chunk', {
+        roomCode: this.roomCode,
         chunkIndex: i,
         totalChunks: totalChunks,
         data: chunk
       });
-      // Small artificial delay to prevent WebRTC send buffer overflow
       await new Promise(resolve => setTimeout(resolve, 15));
     }
   }
