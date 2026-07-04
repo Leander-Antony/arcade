@@ -49,10 +49,7 @@ class PeerSyncManager {
       : 'http://localhost:9000';
       
     this.socket = io(serverUrl, {
-      autoConnect: false, // We connect manually when host/join is clicked
-      extraHeaders: {
-        "Bypass-Tunnel-Reminder": "true"
-      }
+      autoConnect: false // We connect manually when host/join is clicked
     });
     
     this.setupSocketHandlers();
