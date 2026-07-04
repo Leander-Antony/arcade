@@ -233,10 +233,11 @@ export const HomeScreen = () => {
           left: '3rem',
           background: 'none',
           border: 'none',
-          fontSize: '1.5rem',
-          opacity: 0.1, // Nearly invisible
+          fontSize: '2rem', // Made slightly bigger
+          opacity: 0.5, // Made it actually visible
           cursor: 'pointer',
-          zIndex: 100
+          zIndex: 100,
+          filter: 'drop-shadow(0 0 5px rgba(255,0,0,0.5))'
         }}
       >
         💔

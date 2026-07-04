@@ -432,14 +432,15 @@ export const PuzzleCoop = () => {
         onClick={() => setShowSecret(true)}
         style={{
           position: 'absolute',
-          bottom: '10px',
-          left: '10px',
+          bottom: '20px',
+          left: '20px',
           background: 'none',
           border: 'none',
-          fontSize: '1.5rem',
-          opacity: 0.1,
+          fontSize: '2rem',
+          opacity: 0.5,
           cursor: 'pointer',
-          zIndex: 100
+          zIndex: 100,
+          filter: 'drop-shadow(0 0 5px rgba(255,0,0,0.5))'
         }}
       >
         💔

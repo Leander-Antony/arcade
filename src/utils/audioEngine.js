@@ -40,6 +40,7 @@ class AudioEngine {
   }
 
   playArcadeAmbience() {
+    /* 
     if (!this.audioCtx) return;
     
     // Electrical cabinet buzzing hum (Sawtooth + LowPass Filter)
@@ -85,6 +86,7 @@ class AudioEngine {
       setTimeout(playRandomBeep, 2000 + Math.random() * 5000);
     };
     playRandomBeep();
+    */
   }
 
   playOscillator(type, freq, duration, slideFreq = null) {
