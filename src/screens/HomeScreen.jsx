@@ -45,10 +45,10 @@ export const HomeScreen = () => {
 
       <div className="glass-panel" style={{ padding: '4rem', textAlign: 'center', width: '80%', maxWidth: '800px', position: 'relative' }}>
         <h1 className="retro-text neon-text-baby-pink chromatic-text animate-flicker" style={{ fontSize: '6rem', marginBottom: '0.5rem', letterSpacing: '8px' }}>
-          ARCADE ENTRY
+          SOBBING ARCADE
         </h1>
         <p className="retro-text chromatic-text" style={{ color: 'var(--neon-purple)', fontSize: '1.8rem', marginBottom: '3rem', letterSpacing: '4px' }}>
-          P2P MULTIPLAYER SYSTEM
+          TWO ENTER. ONE LEAVES SOBBING.
         </p>
 
         {connectionStatus === 'disconnected' && !coinInserted && !isCoinDropping && (

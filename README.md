@@ -1,4 +1,5 @@
-# 🕹️ Our Neon Arcade
+# 🕹️ SOBBING ARCADE
+> "Two enter. One leaves sobbing."
 
 Okay, so I built this entire retro arcade platform just so we could play against each other. 
 

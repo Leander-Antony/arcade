@@ -1,7 +1,8 @@
 import { io } from 'socket.io-client';
 
-console.log('Connecting to https://problems-collectible-emission-sunglasses.trycloudflare.com...');
-const socket = io('https://problems-collectible-emission-sunglasses.trycloudflare.com');
+const url = 'https://arcade-server-kzo5.onrender.com';
+console.log('Connecting to', url, '...');
+const socket = io(url);
 
 socket.on('connect', () => {
   console.log('Successfully connected! ID:', socket.id);
@@ -10,6 +11,7 @@ socket.on('connect', () => {
 
 socket.on('connect_error', (err) => {
   console.error('Connection error:', err.message);
+  if (err.description) console.error(err.description);
   process.exit(1);
 });
 
