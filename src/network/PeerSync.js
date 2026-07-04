@@ -36,6 +36,10 @@ function calculateLaser(grid) {
 }
 
 const peerConfig = {
+  host: import.meta.env.VITE_PEER_HOST || '0.peerjs.com',
+  port: import.meta.env.VITE_PEER_PORT ? parseInt(import.meta.env.VITE_PEER_PORT) : 443,
+  path: import.meta.env.VITE_PEER_PATH || '/',
+  secure: import.meta.env.VITE_PEER_SECURE !== 'false',
   debug: 2,
   pingInterval: 5000,
   config: {
