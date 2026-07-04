@@ -35,6 +35,7 @@ const compressImage = (file, callback) => {
 
 export const PuzzleCoop = () => {
   const { isHost, gameData } = useGameStore();
+  const [showSecret, setShowSecret] = useState(false);
   
   const pieces = gameData?.pieces;
   const isSetup = !pieces;
@@ -426,6 +427,25 @@ export const PuzzleCoop = () => {
         </div>
 
       </div>
+
+      <button 
+        onClick={() => setShowSecret(true)}
+        style={{
+          position: 'absolute',
+          bottom: '10px',
+          left: '10px',
+          background: 'none',
+          border: 'none',
+          fontSize: '1.5rem',
+          opacity: 0.1,
+          cursor: 'pointer',
+          zIndex: 100
+        }}
+      >
+        💔
+      </button>
+
+      {showSecret && <SecretMessage onClose={() => setShowSecret(false)} />}
     </div>
   );
 };

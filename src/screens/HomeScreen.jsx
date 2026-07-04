@@ -3,11 +3,13 @@ import { useGameStore } from '../store/useGameStore';
 import { peerSync } from '../network/PeerSync';
 import { motion } from 'framer-motion';
 import { audioEngine } from '../utils/audioEngine';
+import { SecretMessage } from './SecretMessage';
 
 export const HomeScreen = () => {
   const { isHost, connectionStatus, roomCode } = useGameStore();
   const [coinInserted, setCoinInserted] = useState(false);
   const [isCoinDropping, setIsCoinDropping] = useState(false);
+  const [showSecret, setShowSecret] = useState(false);
   const [joinMode, setJoinMode] = useState(false);
   const [joinCode, setJoinCode] = useState('');
   
@@ -221,6 +223,26 @@ export const HomeScreen = () => {
           CREDIT {!coinInserted ? '1' : '0'}
         </p>
       </div>
+
+      {/* Secret Easter Egg Button */}
+      <button 
+        onClick={() => setShowSecret(true)}
+        style={{
+          position: 'absolute',
+          bottom: '2rem',
+          left: '3rem',
+          background: 'none',
+          border: 'none',
+          fontSize: '1.5rem',
+          opacity: 0.1, // Nearly invisible
+          cursor: 'pointer',
+          zIndex: 100
+        }}
+      >
+        💔
+      </button>
+
+      {showSecret && <SecretMessage onClose={() => setShowSecret(false)} />}
     </motion.div>
   );
 };

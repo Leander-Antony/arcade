@@ -17,6 +17,7 @@ const getInitialState = () => ({
 
 export const TronLightcycles = () => {
   const { isHost, gameData, players } = useGameStore();
+  const [showSecret, setShowSecret] = useState(false);
   const myPlayerId = isHost ? 'p1' : 'p2';
 
   // Host Initial Setup
@@ -236,6 +237,25 @@ export const TronLightcycles = () => {
       <p className="retro-text" style={{ color: 'var(--text-muted)', marginTop: '20px' }}>
         USE WASD OR ARROW KEYS TO DRIVE
       </p>
+
+      <button 
+        onClick={() => setShowSecret(true)}
+        style={{
+          position: 'absolute',
+          bottom: '10px',
+          left: '10px',
+          background: 'none',
+          border: 'none',
+          fontSize: '1.5rem',
+          opacity: 0.1,
+          cursor: 'pointer',
+          zIndex: 100
+        }}
+      >
+        💔
+      </button>
+
+      {showSecret && <SecretMessage onClose={() => setShowSecret(false)} />}
     </div>
   );
 };
