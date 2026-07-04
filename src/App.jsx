@@ -94,11 +94,12 @@ function App() {
           
           <div style={{ display: 'flex', gap: '5rem', marginBottom: '3rem', justifyContent: 'center' }}>
             <div className="glass-panel" style={{textAlign: 'center', padding: '2rem', minWidth: '200px'}}>
-              <div className="retro-text neon-text-blue" style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>P1 Score</div>
+              <div className="retro-text neon-text-blue" style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>ENOLA</div>
               <div style={{ fontSize: '4rem', fontWeight: 'bold', color: 'white' }}>{players.p1.score}</div>
             </div>
-            <div className="glass-panel" style={{textAlign: 'center', padding: '2rem', minWidth: '200px'}}>
-              <div className="retro-text neon-text-red" style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>P2 Score</div>
+            
+            <div className="glass-panel" style={{ flex: 1, padding: '2rem', textAlign: 'center', border: '1px solid var(--neon-red)' }}>
+              <div className="retro-text neon-text-red" style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>MADZ</div>
               <div style={{ fontSize: '4rem', fontWeight: 'bold', color: 'white' }}>{players.p2.score}</div>
             </div>
           </div>
@@ -109,7 +110,7 @@ function App() {
             color: players.p1.score > players.p2.score ? 'var(--neon-blue)' : players.p1.score < players.p2.score ? 'var(--neon-red)' : 'var(--baby-pink)',
             textShadow: `0 0 10px ${players.p1.score > players.p2.score ? 'var(--neon-blue)' : players.p1.score < players.p2.score ? 'var(--neon-red)' : 'var(--baby-pink)'}`
           }}>
-            {players.p1.score > players.p2.score ? 'PLAYER 1 WINS!' : players.p1.score < players.p2.score ? 'PLAYER 2 WINS!' : 'IT\'S A TIE!'}
+            {players.p1.score > players.p2.score ? 'ENOLA WINS!' : players.p1.score < players.p2.score ? 'MADZ WINS!' : 'IT\'S A TIE!'}
           </h2>
 
           <button 

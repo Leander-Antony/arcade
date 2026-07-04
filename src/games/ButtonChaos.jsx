@@ -144,7 +144,7 @@ export const ButtonChaos = () => {
       }}>
         {/* P1 Score */}
         <div className="glass-panel" style={{ flex: 1, padding: '15px', textAlign: 'center', border: '1px solid var(--neon-blue)' }}>
-          <div className="retro-text" style={{ color: 'var(--neon-blue)', fontSize: '1.2rem', marginBottom: '5px' }}>P1 TILES</div>
+          <div className="retro-text" style={{ color: 'var(--neon-blue)', fontSize: '1.2rem', marginBottom: '5px' }}>ENOLA TILES</div>
           <div style={{ fontSize: '2.5rem', fontWeight: 'bold' }}>{liveP1}</div>
         </div>
 
@@ -163,7 +163,7 @@ export const ButtonChaos = () => {
 
         {/* P2 Score */}
         <div className="glass-panel" style={{ flex: 1, padding: '15px', textAlign: 'center', border: '1px solid var(--neon-red)' }}>
-          <div className="retro-text" style={{ color: 'var(--neon-red)', fontSize: '1.2rem', marginBottom: '5px' }}>P2 TILES</div>
+          <div className="retro-text" style={{ color: 'var(--neon-red)', fontSize: '1.2rem', marginBottom: '5px' }}>MADZ TILES</div>
           <div style={{ fontSize: '2.5rem', fontWeight: 'bold' }}>{liveP2}</div>
         </div>
       </div>

@@ -69,24 +69,40 @@ export const MemoryFlip = () => {
         position: 'absolute', top: '20px', left: '50%', transform: 'translateX(-50%)', 
         padding: '10px 30px', display: 'flex', gap: '40px', zIndex: 10
       }}>
-        <div style={{ 
-          textAlign: 'center', 
+        <div className="glass-panel" style={{
+          padding: '20px',
+          textAlign: 'center',
+          minWidth: '150px',
+          border: '1px solid var(--neon-blue)',
           opacity: gameData?.currentTurn === 'p1' ? 1 : 0.4,
           textShadow: gameData?.currentTurn === 'p1' ? '0 0 15px var(--neon-blue)' : 'none',
           transform: gameData?.currentTurn === 'p1' ? 'scale(1.1)' : 'scale(1)',
           transition: 'all 0.3s ease'
         }}>
-          <span style={{ color: 'var(--neon-blue)', fontSize: '1.2rem' }}>P1 Score</span>
+          <span style={{ color: 'var(--neon-blue)', fontSize: '1.2rem' }}>ENOLA</span>
           <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>{players.p1.score}</div>
         </div>
-        <div style={{ 
+
+        {/* Turn Indicator */}
+        <div className="retro-text animate-pulse-glow" style={{
+          color: gameData?.currentTurn === 'p1' ? 'var(--neon-blue)' : 'var(--neon-red)',
+          fontSize: '2rem'
+        }}>
+          {gameData?.currentTurn === 'p1' ? "ENOLA'S TURN" : "MADZ'S TURN"}
+        </div>
+
+        {/* Scoreboard P2 */}
+        <div className="glass-panel" style={{
+          padding: '20px',
           textAlign: 'center',
+          minWidth: '150px',
+          border: '1px solid var(--neon-red)',
           opacity: gameData?.currentTurn === 'p2' ? 1 : 0.4,
           textShadow: gameData?.currentTurn === 'p2' ? '0 0 15px var(--neon-red)' : 'none',
           transform: gameData?.currentTurn === 'p2' ? 'scale(1.1)' : 'scale(1)',
           transition: 'all 0.3s ease'
         }}>
-          <span style={{ color: 'var(--neon-red)', fontSize: '1.2rem' }}>P2 Score</span>
+          <span style={{ color: 'var(--neon-red)', fontSize: '1.2rem' }}>MADZ</span>
           <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>{players.p2.score}</div>
         </div>
       </div>

@@ -160,7 +160,7 @@ class PeerSyncManager {
     const store = useGameStore.getState();
     store.setConnectionStatus('connecting');
 
-    const roomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const roomCode = 'MADZZZ';
     store.setRoomCode(roomCode);
     this.roomCode = roomCode;
     

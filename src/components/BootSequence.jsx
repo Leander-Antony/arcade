@@ -4,7 +4,7 @@ const BOOT_LINES = [
   "> SYSTEM INITIALIZING...",
   "> LOADING FIRST_EXPERIENCE.EXE...",
   "> SYNCING P2P PROTOCOLS...",
-  "> WELCOME TO THE ARCADE."
+  "> WELCOME TO THE ARCADE, MADZ."
 ];
 
 export const BootSequence = ({ onComplete }) => {

@@ -125,20 +125,14 @@ export const MouseDuel = () => {
   return (
     <div className="w-full h-full" style={{ position: 'relative' }}>
       {/* Scoreboard P1 */}
-      <div className="glass-panel" style={{ 
-        position: 'absolute', top: '20px', left: '20px', 
-        padding: '10px 30px', zIndex: 10, textAlign: 'center'
-      }}>
-        <span style={{ color: 'var(--neon-blue)', fontSize: '1.2rem' }}>P1 Score</span>
+      <div style={{ position: 'absolute', top: 20, left: 20, zIndex: 10 }} className="glass-panel p-4">
+        <span style={{ color: 'var(--neon-blue)', fontSize: '1.2rem' }}>ENOLA</span>
         <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>{players.p1.score}</div>
       </div>
 
       {/* Scoreboard P2 */}
-      <div className="glass-panel" style={{ 
-        position: 'absolute', top: '20px', right: '20px', 
-        padding: '10px 30px', zIndex: 10, textAlign: 'center'
-      }}>
-        <span style={{ color: 'var(--neon-red)', fontSize: '1.2rem' }}>P2 Score</span>
+      <div style={{ position: 'absolute', top: 20, right: 20, zIndex: 10, textAlign: 'right' }} className="glass-panel p-4">
+        <span style={{ color: 'var(--neon-red)', fontSize: '1.2rem' }}>MADZ</span>
         <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>{players.p2.score}</div>
       </div>
 

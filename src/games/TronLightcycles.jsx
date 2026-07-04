@@ -149,19 +149,16 @@ export const TronLightcycles = () => {
   return (
     <div className="w-full h-full flex-center flex-col" style={{ position: 'relative' }}>
       {/* Scoreboard */}
-      <div className="glass-panel" style={{ 
-        position: 'absolute', top: '20px', left: '50%', transform: 'translateX(-50%)', 
-        padding: '10px 30px', display: 'flex', gap: '40px', zIndex: 10
-      }}>
-        <div style={{ textAlign: 'center' }}>
-          <span style={{ color: 'var(--neon-blue)', fontSize: '1.2rem' }}>P1</span>
-          <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>{players.p1.score}/3</div>
+      <div style={{ position: 'absolute', top: 20, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '50px', zIndex: 10 }}>
+          <div className="glass-panel" style={{ padding: '10px 30px', textAlign: 'center', border: '1px solid var(--neon-blue)' }}>
+            <span style={{ color: 'var(--neon-blue)', fontSize: '1.2rem' }}>ENOLA</span>
+            <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>{players.p1.score}/3</div>
+          </div>
+          <div className="glass-panel" style={{ padding: '10px 30px', textAlign: 'center', border: '1px solid var(--neon-red)' }}>
+            <span style={{ color: 'var(--neon-red)', fontSize: '1.2rem' }}>MADZ</span>
+            <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>{players.p2.score}/3</div>
+          </div>
         </div>
-        <div style={{ textAlign: 'center' }}>
-          <span style={{ color: 'var(--neon-red)', fontSize: '1.2rem' }}>P2</span>
-          <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>{players.p2.score}/3</div>
-        </div>
-      </div>
 
       {/* Grid Arena */}
       <div className="glass-panel" style={{

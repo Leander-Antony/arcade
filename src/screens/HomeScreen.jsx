@@ -162,7 +162,7 @@ export const HomeScreen = () => {
                   marginBottom: '15px',
                   border: '2px solid rgba(255,255,255,0.2)'
                 }}></div>
-                <span className="retro-text" style={{ color: 'var(--neon-blue)', fontSize: '1.2rem' }}>P1 (HOST)</span>
+                <span className="retro-text" style={{ color: 'var(--neon-blue)', fontSize: '1.2rem' }}>ENOLA</span>
                 <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Connected</span>
               </div>
               
@@ -174,7 +174,7 @@ export const HomeScreen = () => {
                   marginBottom: '15px',
                   border: '2px solid rgba(255,255,255,0.2)'
                 }}></div>
-                <span className="retro-text" style={{ color: 'var(--neon-red)', fontSize: '1.2rem' }}>P2 (CLIENT)</span>
+                <span className="retro-text" style={{ color: 'var(--neon-red)', fontSize: '1.2rem' }}>MADZ</span>
                 <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>{connected ? 'Connected' : 'Waiting...'}</span>
               </div>
             </div>
@@ -192,11 +192,11 @@ export const HomeScreen = () => {
                     }}
                     style={{ fontSize: '2.5rem', padding: '20px 50px' }}
                   >
-                    PLAYER 1 START
+                    ENOLA START
                   </button>
                 ) : (
                   <p className="retro-text animate-pulse-glow" style={{ color: 'var(--neon-blue)', fontSize: '1.5rem', letterSpacing: '4px' }}>
-                    WAITING FOR P1 TO START...
+                    WAITING FOR ENOLA TO START...
                   </p>
                 )
               ) : waiting ? (
