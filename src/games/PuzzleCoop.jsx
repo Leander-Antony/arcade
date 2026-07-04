@@ -436,7 +436,7 @@ export const PuzzleCoop = () => {
           left: '20px',
           background: 'none',
           border: 'none',
-          fontSize: '2rem',
+          fontSize: '1.5rem',
           opacity: 0.5,
           cursor: 'pointer',
           zIndex: 100,

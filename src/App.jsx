@@ -93,12 +93,12 @@ function App() {
           <h1 className="neon-text-pink retro-text animate-flicker" style={{fontSize: '5rem', marginBottom: '2rem', textAlign: 'center'}}>GAME OVER</h1>
           
           <div style={{ display: 'flex', gap: '5rem', marginBottom: '3rem', justifyContent: 'center' }}>
-            <div className="glass-panel" style={{textAlign: 'center', padding: '2rem', minWidth: '200px'}}>
+            <div className="glass-panel" style={{ flex: 1, textAlign: 'center', padding: '2rem', minWidth: '200px', maxWidth: '250px', border: '1px solid var(--neon-blue)' }}>
               <div className="retro-text neon-text-blue" style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>ENOLA</div>
               <div style={{ fontSize: '4rem', fontWeight: 'bold', color: 'white' }}>{players.p1.score}</div>
             </div>
             
-            <div className="glass-panel" style={{ flex: 1, padding: '2rem', textAlign: 'center', border: '1px solid var(--neon-red)' }}>
+            <div className="glass-panel" style={{ flex: 1, textAlign: 'center', padding: '2rem', minWidth: '200px', maxWidth: '250px', border: '1px solid var(--neon-red)' }}>
               <div className="retro-text neon-text-red" style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>MADZ</div>
               <div style={{ fontSize: '4rem', fontWeight: 'bold', color: 'white' }}>{players.p2.score}</div>
             </div>

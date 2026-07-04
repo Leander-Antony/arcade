@@ -5,7 +5,7 @@ export const SecretMessage = ({ onClose }) => {
   const [displayedText, setDisplayedText] = useState('');
   const [showCursor, setShowCursor] = useState(true);
   
-  const fullMessage = "My lady, I hope you had a great time 😁😉";
+  const fullMessage = "My lady, I hope you enjoying 😁😉";
 
   // Blinking cursor
   useEffect(() => {

@@ -229,12 +229,12 @@ export const HomeScreen = () => {
         onClick={() => setShowSecret(true)}
         style={{
           position: 'absolute',
-          bottom: '2rem',
-          left: '3rem',
+          bottom: '4rem',
+          left: '4rem',
           background: 'none',
           border: 'none',
-          fontSize: '2rem', // Made slightly bigger
-          opacity: 0.5, // Made it actually visible
+          fontSize: '1.5rem',
+          opacity: 0.2,
           cursor: 'pointer',
           zIndex: 100,
           filter: 'drop-shadow(0 0 5px rgba(255,0,0,0.5))'
