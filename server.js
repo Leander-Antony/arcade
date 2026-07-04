@@ -53,6 +53,6 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 9000;
-httpServer.listen(PORT, () => {
+httpServer.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Socket.io relay server running on port ${PORT}`);
 });
