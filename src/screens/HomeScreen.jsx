@@ -3,7 +3,7 @@ import { useGameStore } from '../store/useGameStore';
 import { peerSync } from '../network/PeerSync';
 import { motion } from 'framer-motion';
 import { audioEngine } from '../utils/audioEngine';
-import { SecretMessage } from './SecretMessage';
+import { SecretMessage } from '../components/SecretMessage';
 
 export const HomeScreen = () => {
   const { isHost, connectionStatus, roomCode } = useGameStore();

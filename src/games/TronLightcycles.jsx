@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useGameStore } from '../store/useGameStore';
 import { peerSync } from '../network/PeerSync';
 import { audioEngine } from '../utils/audioEngine';
