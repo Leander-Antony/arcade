@@ -46,7 +46,8 @@ export const CursorOverlay = () => {
             top: p1Pos.y,
             transform: 'translate(-50%, -50%)',
             transition: 'left 0.05s linear, top 0.05s linear',
-            pointerEvents: 'none'
+            pointerEvents: 'none',
+            opacity: 1
           }}
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00f3ff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ filter: 'drop-shadow(0 0 5px #00f3ff)' }}>
@@ -64,7 +65,8 @@ export const CursorOverlay = () => {
             top: p2Pos.y,
             transform: 'translate(-50%, -50%)',
             transition: 'left 0.05s linear, top 0.05s linear',
-            pointerEvents: 'none'
+            pointerEvents: 'none',
+            opacity: 1
           }}
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ff0055" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ filter: 'drop-shadow(0 0 5px #ff0055)' }}>

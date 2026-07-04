@@ -330,38 +330,40 @@ class PeerSyncManager {
       }
       case 'ACTION_CLICK_BUTTONCHAOS': {
         const { index, playerId, isPowerUp } = payload;
-        const currentGrid = store.gameData?.grid;
-        if (!currentGrid) break;
         
-        const newGrid = [...currentGrid];
-        const playerVal = playerId === 'p1' ? 1 : 2;
-        
-        const claimTile = (idx) => {
-          if (idx >= 0 && idx < 64) {
-            newGrid[idx] = playerVal;
-          }
-        };
+        store.setGameData(prev => {
+          if (!prev || !prev.grid) return prev;
+          
+          const newGrid = [...prev.grid];
+          const playerVal = playerId === 'p1' ? 1 : 2;
+          
+          const claimTile = (idx) => {
+            if (idx >= 0 && idx < 64) {
+              newGrid[idx] = playerVal;
+            }
+          };
 
-        claimTile(index);
+          claimTile(index);
 
-        if (isPowerUp) {
-          // Claim 3x3 area
-          const row = Math.floor(index / 8);
-          const col = index % 8;
-          for (let r = -1; r <= 1; r++) {
-            for (let c = -1; c <= 1; c++) {
-              if (row + r >= 0 && row + r < 8 && col + c >= 0 && col + c < 8) {
-                claimTile((row + r) * 8 + (col + c));
+          if (isPowerUp) {
+            // Claim 3x3 area
+            const row = Math.floor(index / 8);
+            const col = index % 8;
+            for (let r = -1; r <= 1; r++) {
+              for (let c = -1; c <= 1; c++) {
+                if (row + r >= 0 && row + r < 8 && col + c >= 0 && col + c < 8) {
+                  claimTile((row + r) * 8 + (col + c));
+                }
               }
             }
+            playSound('powerup');
+            // Host clears powerup immediately
+            return { ...prev, grid: newGrid, powerUpIndex: null };
+          } else {
+            playSound('click');
+            return { ...prev, grid: newGrid };
           }
-          playSound('powerup');
-          // Host clears powerup immediately
-          store.setGameData(prev => ({ ...prev, grid: newGrid, powerUpIndex: null }));
-        } else {
-          playSound('click');
-          store.setGameData(prev => ({ ...prev, grid: newGrid }));
-        }
+        });
         
         break;
       }
@@ -423,72 +425,84 @@ class PeerSyncManager {
       }
       case 'ACTION_FLIP_CARD': {
         const { cardId, playerId } = payload;
-        const state = store.gameData;
-        if (!state || state.lock) break;
         
-        const cards = [...state.cards];
-        const cardIndex = cards.findIndex(c => c.id === cardId);
-        if (cardIndex === -1 || cards[cardIndex].flipped || cards[cardIndex].claimedBy) break;
-
-        cards[cardIndex].flipped = true;
-
-        if (cards[cardIndex].isJoker) {
-          const newCards = [...cards];
-          newCards[cardIndex] = { ...newCards[cardIndex], flipped: true, claimedBy: playerId };
-          store.updatePlayerScore(playerId, 1);
-          playSound('star');
-          store.triggerShake(); // Physical feedback!
-          if (peerSync.connection && peerSync.connection.open) {
-            peerSync.connection.send({ type: 'ACTION', action: 'TRIGGER_SHAKE', payload: {} });
-          }
-          store.setGameData({ ...state, cards: newCards });
-          break; // Joker instantly resolves, they keep their turn
-        }
-
-        if (state.flip1 === null) {
-          const newCards = [...cards];
-          const cIndex = newCards.findIndex(c => c.id === cardId);
-          newCards[cIndex] = { ...newCards[cIndex], flipped: true };
-          store.setGameData({ ...state, cards: newCards, flip1: cardId });
-        } else if (state.flip2 === null) {
-          const newCards = [...cards];
-          const cIndex = newCards.findIndex(c => c.id === cardId);
-          newCards[cIndex] = { ...newCards[cIndex], flipped: true };
-          store.setGameData({ ...state, cards: newCards, flip2: cardId, lock: true });
+        store.setGameData(prevState => {
+          if (!prevState || prevState.lock) return prevState;
           
-          setTimeout(() => {
-            const currentStore = useGameStore.getState();
-            const currentCards = currentStore.gameData.cards.map(c => ({...c}));
-            
-            const c1 = currentCards.find(c => c.id === state.flip1);
-            const c2 = currentCards.find(c => c.id === cardId);
-            
-            let nextTurn = currentStore.gameData.currentTurn;
-            if (c1 && c2 && c1.emoji === c2.emoji) {
-              c1.claimedBy = playerId;
-              c2.claimedBy = playerId;
-              c1.flipped = false;
-              c2.flipped = false;
-              currentStore.updatePlayerScore(playerId, 1);
-              playSound('star');
-            } else {
-              if (c1) c1.flipped = false;
-              if (c2) c2.flipped = false;
-              playSound('trap');
-              nextTurn = playerId === 'p1' ? 'p2' : 'p1';
+          const cards = [...prevState.cards];
+          const cardIndex = cards.findIndex(c => c.id === cardId);
+          if (cardIndex === -1 || cards[cardIndex].flipped || cards[cardIndex].claimedBy) return prevState;
+
+          cards[cardIndex].flipped = true;
+
+          if (cards[cardIndex].isJoker) {
+            const newCards = [...cards];
+            newCards[cardIndex] = { ...newCards[cardIndex], flipped: true, claimedBy: playerId };
+            store.updatePlayerScore(playerId, 1);
+            playSound('star');
+            store.triggerShake(); // Physical feedback!
+            if (peerSync.connection && peerSync.connection.open) {
+              peerSync.connection.send({ type: 'ACTION', action: 'TRIGGER_SHAKE', payload: {} });
             }
+            return { ...prevState, cards: newCards };
+          }
+
+          if (prevState.flip1 === null) {
+            const newCards = [...cards];
+            const cIndex = newCards.findIndex(c => c.id === cardId);
+            newCards[cIndex] = { ...newCards[cIndex], flipped: true };
+            return { ...prevState, cards: newCards, flip1: cardId };
+          } else if (prevState.flip2 === null) {
+            const newCards = [...cards];
+            const cIndex = newCards.findIndex(c => c.id === cardId);
+            newCards[cIndex] = { ...newCards[cIndex], flipped: true };
             
-            currentStore.setGameData({ 
-              ...currentStore.gameData, 
-              cards: currentCards, 
-              flip1: null, 
-              flip2: null, 
-              lock: false, 
-              currentTurn: nextTurn 
-            });
-            this.sendState(useGameStore.getState());
-          }, 1000);
-        }
+            // Set up a timeout to evaluate the match outside of this synchronous state update
+            setTimeout(() => {
+              const currentStore = useGameStore.getState();
+              const state = currentStore.gameData;
+              const currentCards = state.cards.map(c => ({...c}));
+              
+              const c1 = currentCards.find(c => c.id === state.flip1);
+              const c2 = currentCards.find(c => c.id === cardId);
+              
+              let nextTurn = state.currentTurn;
+              if (c1 && c2 && c1.emoji === c2.emoji) {
+                c1.claimedBy = playerId;
+                c2.claimedBy = playerId;
+                c1.flipped = false;
+                c2.flipped = false;
+                currentStore.updatePlayerScore(playerId, 1);
+                playSound('star');
+              } else {
+                if (c1) c1.flipped = false;
+                if (c2) c2.flipped = false;
+                playSound('trap');
+                nextTurn = playerId === 'p1' ? 'p2' : 'p1';
+              }
+              
+              currentStore.setGameData(prev => ({
+                ...prev,
+                cards: currentCards,
+                flip1: null,
+                flip2: null,
+                lock: false,
+                currentTurn: nextTurn
+              }));
+              
+              // End game check
+              const allClaimed = currentCards.every(c => c.claimedBy || c.isJoker);
+              if (allClaimed) {
+                setTimeout(() => {
+                  peerSync.sendAction('GAME_OVER');
+                }, 500);
+              }
+            }, 1000);
+
+            return { ...prevState, cards: newCards, flip2: cardId, lock: true };
+          }
+          return prevState;
+        });
         break;
       }
       case 'ACTION_TRON_TURN': {

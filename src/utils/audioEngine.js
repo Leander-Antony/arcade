@@ -126,6 +126,8 @@ class AudioEngine {
   }
 
   playAmbientHum() {
+    // Disabled based on playtest feedback (Akuma_kikai found it annoying in voice calls)
+    /*
     if (!this.audioCtx) this.init();
     if (!this.audioCtx || this.isHumming) return;
     this.isHumming = true;
@@ -144,6 +146,7 @@ class AudioEngine {
     gain.connect(this.masterGain);
 
     osc.start();
+    */
   }
 
   playCoinInsert() {
