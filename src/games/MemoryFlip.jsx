@@ -67,43 +67,44 @@ export const MemoryFlip = () => {
       {/* Scoreboard */}
       <div className="glass-panel" style={{ 
         position: 'absolute', top: '20px', left: '50%', transform: 'translateX(-50%)', 
-        padding: '10px 30px', display: 'flex', gap: '40px', zIndex: 10
+        padding: '5px 20px', display: 'flex', gap: '30px', zIndex: 10
       }}>
         <div className="glass-panel" style={{
-          padding: '20px',
+          padding: '10px 15px',
           textAlign: 'center',
-          minWidth: '150px',
+          minWidth: '100px',
           border: '1px solid var(--neon-blue)',
           opacity: gameData?.currentTurn === 'p1' ? 1 : 0.4,
           textShadow: gameData?.currentTurn === 'p1' ? '0 0 15px var(--neon-blue)' : 'none',
           transform: gameData?.currentTurn === 'p1' ? 'scale(1.1)' : 'scale(1)',
           transition: 'all 0.3s ease'
         }}>
-          <span style={{ color: 'var(--neon-blue)', fontSize: '1.2rem' }}>ENOLA</span>
-          <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>{players.p1.score}</div>
+          <span style={{ color: 'var(--neon-blue)', fontSize: '0.9rem' }}>ENOLA</span>
+          <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{players.p1.score}</div>
         </div>
 
         {/* Turn Indicator */}
-        <div className="retro-text animate-pulse-glow" style={{
+        <div className="retro-text flex-center animate-pulse-glow" style={{
           color: gameData?.currentTurn === 'p1' ? 'var(--neon-blue)' : 'var(--neon-red)',
-          fontSize: '2rem'
+          fontSize: '1.2rem',
+          minWidth: '150px'
         }}>
           {gameData?.currentTurn === 'p1' ? "ENOLA'S TURN" : "MADZ'S TURN"}
         </div>
 
         {/* Scoreboard P2 */}
         <div className="glass-panel" style={{
-          padding: '20px',
+          padding: '10px 15px',
           textAlign: 'center',
-          minWidth: '150px',
+          minWidth: '100px',
           border: '1px solid var(--neon-red)',
           opacity: gameData?.currentTurn === 'p2' ? 1 : 0.4,
           textShadow: gameData?.currentTurn === 'p2' ? '0 0 15px var(--neon-red)' : 'none',
           transform: gameData?.currentTurn === 'p2' ? 'scale(1.1)' : 'scale(1)',
           transition: 'all 0.3s ease'
         }}>
-          <span style={{ color: 'var(--neon-red)', fontSize: '1.2rem' }}>MADZ</span>
-          <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>{players.p2.score}</div>
+          <span style={{ color: 'var(--neon-red)', fontSize: '0.9rem' }}>MADZ</span>
+          <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{players.p2.score}</div>
         </div>
       </div>
       
@@ -121,7 +122,7 @@ export const MemoryFlip = () => {
         justifyContent: 'center',
         alignContent: 'center',
         width: '90%',
-        maxWidth: '70vh',
+        maxWidth: gameSettings.memoryGridSize === '5x5' ? '55vh' : '65vh',
         marginTop: '60px',
         paddingBottom: '20px'
       }}>
@@ -159,7 +160,7 @@ export const MemoryFlip = () => {
                 {/* Front Face (Question Mark) */}
                 <div style={{
                   position: 'absolute', width: '100%', height: '100%', backfaceVisibility: 'hidden',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'clamp(1.5rem, 5vmin, 3rem)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'clamp(1rem, 4vmin, 2.5rem)',
                   backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: '8px',
                   border: border, boxShadow: shadow
                 }}>❓</div>
@@ -167,7 +168,7 @@ export const MemoryFlip = () => {
                 {/* Back Face (Emoji) */}
                 <div style={{
                   position: 'absolute', width: '100%', height: '100%', backfaceVisibility: 'hidden',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'clamp(1.5rem, 5vmin, 3rem)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'clamp(1rem, 4vmin, 2.5rem)',
                   backgroundColor: 'var(--panel-bg)', borderRadius: '8px',
                   transform: 'rotateY(180deg)',
                   border: border, boxShadow: shadow
