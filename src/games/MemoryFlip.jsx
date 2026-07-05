@@ -57,6 +57,18 @@ export const MemoryFlip = () => {
   const handleCardClick = (card) => {
     if (gameData?.currentTurn !== myPlayerId) return;
     if (card.claimedBy || card.flipped) return;
+    
+    // Optimistic Local Update so the UI feels instantly responsive
+    useGameStore.getState().setGameData(prev => {
+      if (!prev) return prev;
+      const newCards = [...prev.cards];
+      const idx = newCards.findIndex(c => c.id === card.id);
+      if (idx !== -1) {
+        newCards[idx] = { ...newCards[idx], flipped: true };
+      }
+      return { ...prev, cards: newCards };
+    });
+
     peerSync.sendAction('ACTION_FLIP_CARD', { cardId: card.id, playerId: myPlayerId });
   };
 

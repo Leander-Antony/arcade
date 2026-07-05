@@ -284,6 +284,9 @@ class PeerSyncManager {
       }
       case 'GOTO_SELECT':
         store.setGameState('select');
+        store.setCurrentGame(null);
+        store.resetScores();
+        store.setGameData(null);
         break;
       case 'START_GAME':
         store.setGameState('playing');
@@ -513,6 +516,22 @@ class PeerSyncManager {
             // Prevent 180 degree immediate death turns
             if (pState.dx !== -dx || pState.dy !== -dy) {
               return { ...prev, [playerId]: { ...pState, dx, dy } };
+            }
+          }
+          return prev;
+        });
+        break;
+      }
+      case 'ACTION_MAZE_STEP': {
+        const { playerId, dx, dy } = payload;
+        store.setGameData(prev => {
+          if (prev && prev.status === 'playing') {
+            const pState = prev[playerId];
+            const nx = pState.x + dx;
+            const ny = pState.y + dy;
+            
+            if (prev.grid[ny] && prev.grid[ny][nx] === 0) {
+              return { ...prev, [playerId]: { ...pState, x: nx, y: ny, dx: 0, dy: 0 } };
             }
           }
           return prev;

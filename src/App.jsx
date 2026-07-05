@@ -10,6 +10,7 @@ import { ButtonChaos } from './games/ButtonChaos';
 import { PuzzleCoop } from './games/PuzzleCoop';
 import { MemoryFlip } from './games/MemoryFlip';
 import { TronLightcycles } from './games/TronLightcycles';
+import { MazeRace } from './games/MazeRace';
 import { ArcadeBackground } from './components/ArcadeBackground';
 import { CrtOverlay } from './components/CrtOverlay';
 import { ChallengerBlinker } from './components/ChallengerBlinker';
@@ -46,6 +47,7 @@ const GameRenderer = () => {
     case 'puzzle-coop': return <PuzzleCoop />;
     case 'memory-flip': return <MemoryFlip />;
     case 'tron-lightcycles': return <TronLightcycles />;
+    case 'maze-race': return <MazeRace />;
     default: return <div>Unknown Game</div>;
   }
 };
@@ -55,7 +57,8 @@ import { BootSequence } from './components/BootSequence';
 function App() {
   const [isBooting, setIsBooting] = useState(true);
   const gameState = useGameStore(state => state.gameState);
-  const players = useGameStore(state => state.players);
+  const p1Score = useGameStore(state => state.players.p1.score);
+  const p2Score = useGameStore(state => state.players.p2.score);
   const isShaking = useGameStore(state => state.isShaking);
 
   useEffect(() => {
@@ -95,22 +98,22 @@ function App() {
           <div style={{ display: 'flex', gap: '5rem', marginBottom: '3rem', justifyContent: 'center' }}>
             <div className="glass-panel" style={{ flex: 1, textAlign: 'center', padding: '2rem', minWidth: '200px', maxWidth: '250px', border: '1px solid var(--neon-blue)' }}>
               <div className="retro-text neon-text-blue" style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>ENOLA</div>
-              <div style={{ fontSize: '4rem', fontWeight: 'bold', color: 'white' }}>{players.p1.score}</div>
+              <div style={{ fontSize: '4rem', fontWeight: 'bold', color: 'white' }}>{p1Score}</div>
             </div>
             
             <div className="glass-panel" style={{ flex: 1, textAlign: 'center', padding: '2rem', minWidth: '200px', maxWidth: '250px', border: '1px solid var(--neon-red)' }}>
               <div className="retro-text neon-text-red" style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>MADZ</div>
-              <div style={{ fontSize: '4rem', fontWeight: 'bold', color: 'white' }}>{players.p2.score}</div>
+              <div style={{ fontSize: '4rem', fontWeight: 'bold', color: 'white' }}>{p2Score}</div>
             </div>
           </div>
 
           <h2 className="retro-text" style={{ 
             fontSize: '3rem', 
             marginBottom: '3rem', 
-            color: players.p1.score > players.p2.score ? 'var(--neon-blue)' : players.p1.score < players.p2.score ? 'var(--neon-red)' : 'var(--baby-pink)',
-            textShadow: `0 0 10px ${players.p1.score > players.p2.score ? 'var(--neon-blue)' : players.p1.score < players.p2.score ? 'var(--neon-red)' : 'var(--baby-pink)'}`
+            color: p1Score > p2Score ? 'var(--neon-blue)' : p1Score < p2Score ? 'var(--neon-red)' : 'var(--baby-pink)',
+            textShadow: `0 0 10px ${p1Score > p2Score ? 'var(--neon-blue)' : p1Score < p2Score ? 'var(--neon-red)' : 'var(--baby-pink)'}`
           }}>
-            {players.p1.score > players.p2.score ? 'ENOLA WINS!' : players.p1.score < players.p2.score ? 'MADZ WINS!' : 'IT\'S A TIE!'}
+            {p1Score > p2Score ? 'ENOLA WINS!' : p1Score < p2Score ? 'MADZ WINS!' : 'IT\'S A TIE!'}
           </h2>
 
           <button 
@@ -118,10 +121,10 @@ function App() {
             onMouseEnter={() => audioEngine.playHoverBeep()}
             onClick={() => {
               audioEngine.playCoinInsert();
-              peerSync.sendAction('RETURN_HOME');
+              peerSync.sendAction('GOTO_SELECT');
             }}
           >
-            RETURN TO MENU
+            SELECT ANOTHER GAME
           </button>
         </div>
         )}

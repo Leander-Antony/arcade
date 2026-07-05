@@ -3,7 +3,9 @@ import { useGameStore } from '../store/useGameStore';
 import { peerSync } from '../network/PeerSync';
 
 export const CursorOverlay = () => {
-  const { players, isHost } = useGameStore();
+  const players = useGameStore(state => state.players);
+  const isHost = useGameStore(state => state.isHost);
+  const connectionStatus = useGameStore(state => state.connectionStatus);
 
   useEffect(() => {
     let lastSend = 0;

@@ -6,55 +6,65 @@ const GAME_RULES = {
   'mouse-duel': {
     title: 'Mouse Duel',
     rules: [
-      'Items will pop up all over the screen randomly.',
-      'Hover over Stars (+1) and Cakes (+5) before I steal them.',
-      'Avoid the Traps and Bombs! They steal your points...',
-      '(Warning: Grabbing a trap will physically shake your screen!)',
-      'First player to reach 30 points wins.'
+      'Okay, here\'s the deal: stuff is going to pop up everywhere.',
+      'Hover over the Stars (+1) and Cakes (+5) before I steal them from you!',
+      'Watch out for Traps and Bombs, they\'ll drain your score.',
+      '(Warning: If you grab a trap, your whole screen is going to shake!)',
+      'First one of us to hit 30 points wins. Don\'t hold back!'
     ],
     color: 'var(--neon-blue)'
   },
   'button-chaos': {
     title: 'Grid Capture',
     rules: [
-      'Battle over an 8x8 neon grid.',
-      'Violently click tiles to paint them your color (Blue vs Red).',
-      'You CAN steal my tiles, and I WILL steal yours.',
-      'Watch for the massive Energy Cores: clicking one claims a 3x3 area instantly!',
-      'Whoever holds the most tiles when time runs out wins.'
+      'This one gets intense. We\'re battling over this neon grid.',
+      'Click tiles as fast as you can to paint them your color.',
+      'You can steal my tiles, and trust me, I am absolutely going to steal yours.',
+      'If you see a glowing Energy Core, click it—it claims a huge 3x3 area instantly!',
+      'Whoever owns the most tiles when the 30 seconds run out takes the crown.'
     ],
     color: 'var(--neon-red)'
   },
   'puzzle-coop': {
     title: 'Puzzle Co-op',
     rules: [
-      'Take a deep breath. No fighting in this mode.',
-      'We work together to rebuild a shattered jigsaw puzzle.',
-      'We can both drag pieces at the same time (you will see my cursor).',
-      'Pieces will magically snap into place when you get them close.'
+      'Alright, take a deep breath. We aren\'t fighting in this one.',
+      'We have to work together to rebuild this jigsaw puzzle.',
+      'We can both drag pieces at the same time (you\'ll actually see my mouse moving around!).',
+      'Just get the pieces close to where they belong, and they\'ll snap right into place.'
     ],
     color: 'var(--neon-purple)'
   },
   'memory-flip': {
     title: 'Memory Flip',
     rules: [
-      'Take turns flipping cards to find matching emoji pairs.',
-      'If you find a match, you steal a point and KEEP your turn!',
-      'If you miss, your turn ends and it\'s my go.',
-      '5x5 Mode: Find the hidden Joker 🃏 for an instant free point!'
+      'Classic memory game, but we take turns flipping cards to find matches.',
+      'If you find a pair, you get a point AND you get to go again!',
+      'If you miss, your turn is over and it\'s my turn to score.',
+      'If we play the 5x5 mode, watch out for the Joker 🃏—finding it is an instant free point!'
     ],
     color: 'var(--neon-green)'
   },
   'tron-lightcycles': {
     title: 'Tron Lightcycles',
     rules: [
-      'We both drive a constantly moving neon lightcycle.',
-      'Use WASD (or Arrow Keys) to steer.',
-      'Your bike leaves a solid wall behind it. Try to box me in!',
-      '(Warning: If you crash into a wall, the entire machine shakes.)',
-      'First to crash 3 times loses!'
+      'We are both driving lightcycles that never stop moving.',
+      'Use your WASD or Arrow Keys to steer.',
+      'You leave a solid neon wall behind you. Try to trap me in your trail!',
+      '(Warning: When you inevitably crash into a wall, your screen will shake.)',
+      'First one of us to crash 3 times loses!'
     ],
     color: 'var(--neon-gold)'
+  },
+  'maze-race': {
+    title: 'Maze Race',
+    rules: [
+      'We\'re racing through a pitch-black maze.',
+      'Use your Arrow Keys (or WASD) to move. You move one step per press.',
+      'You only have a tiny flashlight to see what\'s immediately around you.',
+      'The first one to find the glowing Golden Core hidden somewhere in the dark wins!'
+    ],
+    color: 'var(--neon-pink)'
   }
 };
 
