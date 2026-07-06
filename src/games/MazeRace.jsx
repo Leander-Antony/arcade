@@ -13,6 +13,7 @@ const generateMaze = (width, height) => {
   
   const stack = [[1, 1]];
   grid[1][1] = 0;
+  grid[height - 2][width - 2] = 0;
   
   while (stack.length > 0) {
     const [x, y] = stack[stack.length - 1];
@@ -26,8 +27,14 @@ const generateMaze = (width, height) => {
     if (neighbors.length > 0) {
       const idx = Math.floor(Math.random() * neighbors.length);
       const [nx, ny, wx, wy] = neighbors[idx];
+      
       grid[wy][wx] = 0;
       grid[ny][nx] = 0;
+      
+      // Mirror the carved paths for Player 2
+      grid[height - 1 - wy][width - 1 - wx] = 0;
+      grid[height - 1 - ny][width - 1 - nx] = 0;
+      
       stack.push([nx, ny]);
     } else {
       stack.pop();
@@ -38,7 +45,7 @@ const generateMaze = (width, height) => {
   const cx = Math.floor(width / 2);
   const cy = Math.floor(height / 2);
   grid[cy][cx] = 0;
-  // Break walls around the core to ensure it's accessible
+  // Break walls around the core to ensure it's accessible and connect the two halves
   grid[cy-1][cx] = 0;
   grid[cy+1][cx] = 0;
   grid[cy][cx-1] = 0;
