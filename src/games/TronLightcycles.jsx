@@ -3,6 +3,7 @@ import { useGameStore } from '../store/useGameStore';
 import { peerSync } from '../network/PeerSync';
 import { audioEngine } from '../utils/audioEngine';
 import { motion } from 'framer-motion';
+import { SecretMessage } from '../components/SecretMessage';
 
 const GRID_SIZE = 40;
 const TICK_RATE = 150; // ms per tick

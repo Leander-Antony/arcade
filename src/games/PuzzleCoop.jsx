@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useGameStore } from '../store/useGameStore';
 import { peerSync } from '../network/PeerSync';
 import { motion } from 'framer-motion';
+import { SecretMessage } from '../components/SecretMessage';
 
 const DEFAULT_IMG = 'https://images.unsplash.com/photo-1605721911519-3dfeb3be25e7?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80';
 

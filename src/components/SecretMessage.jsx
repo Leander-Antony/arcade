@@ -15,9 +15,12 @@ export const SecretMessage = ({ onClose }) => {
 
   // Typewriter effect
   useEffect(() => {
-    if (displayedText.length < fullMessage.length) {
+    const currentChars = [...displayedText];
+    const totalChars = [...fullMessage];
+    
+    if (currentChars.length < totalChars.length) {
       const timeout = setTimeout(() => {
-        setDisplayedText(fullMessage.slice(0, displayedText.length + 1));
+        setDisplayedText(totalChars.slice(0, currentChars.length + 1).join(''));
       }, Math.random() * 50 + 50); // Variable typing speed
       return () => clearTimeout(timeout);
     } else {
