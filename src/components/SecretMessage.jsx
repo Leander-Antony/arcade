@@ -1,11 +1,17 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
-export const SecretMessage = ({ onClose }) => {
+export const SecretMessage = ({ onClose, message }) => {
   const [displayedText, setDisplayedText] = useState('');
   const [showCursor, setShowCursor] = useState(true);
   
-  const fullMessage = "My lady, I hope you enjoying 😁😉";
+  const fullMessage = message || `Developer Log #0001
+
+If Madz is reading this...
+
+Mission accomplished.
+
+😉`;
 
   // Blinking cursor
   useEffect(() => {
@@ -56,7 +62,8 @@ export const SecretMessage = ({ onClose }) => {
           fontSize: '2rem', 
           maxWidth: '80%', 
           textAlign: 'center',
-          lineHeight: '1.5'
+          lineHeight: '1.5',
+          whiteSpace: 'pre-wrap'
         }}
       >
         {displayedText}

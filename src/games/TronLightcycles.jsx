@@ -257,7 +257,16 @@ export const TronLightcycles = () => {
         💔
       </button>
 
-      {showSecret && <SecretMessage onClose={() => setShowSecret(false)} />}
+      {showSecret && <SecretMessage onClose={() => setShowSecret(false)} message={`🍫 Secret Found
+
+Mochi says:
+"Today's café only exists in our imagination."
+
+So grab an imaginary coffee.
+Sit for a while.
+Before you leave... Mochi wants to say something
+
+"I hope you two get to have a real coffee together someday... maybe soon. ☕☺️🌱"`} />}
     </div>
   );
 };
